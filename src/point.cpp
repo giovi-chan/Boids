@@ -7,7 +7,7 @@ Point::Point(double x, double y) : x_{0.0}, y_{0.0} {}
 
 double Point::x() const { return x_; }
 double Point::y() const { return y_; }
- 
+
 double Point::distance() const { return std::sqrt(x_ * x_ + y_ * y_); }
 
 // free functions

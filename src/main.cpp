@@ -53,7 +53,7 @@ int main() {
     // Posizione e rotazione
     Point pos = boid.position();
     Point vel = boid.velocity();
-    float angle = std::atan2(vel.y(), vel.x()) * 180 / 3.14159; // Angolo in gradi
+    double angle = std::atan2(vel.y(), vel.x()) * 180 / 3.14159; // Angolo in gradi
 
     triangle.setPosition(pos.x(), pos.y());
     triangle.setRotation(angle);  // Ruota il triangolo nella direzione del movimento
