@@ -1,16 +1,15 @@
-#include "boid.hpp"
-
+#include "../include/boid.hpp"
 #include <cassert>
 
-// Constructor
+// Constructor    
 Boid::Boid(Point position, Point velocity)
     : position_{position}, velocity_{velocity} {}
 
-//getters
+// getters
 Point Boid::position() const { return position_; }
 Point Boid::velocity() const { return velocity_; }
 
-// fly rules
+// flight rules
 Point Boid::alignment(const std::vector<Boid>& neighbors,
                       double alignment_coeff) const {
   if (neighbors.empty()) return Point{0, 0};
@@ -33,7 +32,7 @@ Point Boid::separation(const std::vector<Boid>& neighbors,
       force = force + neighbor.position() - position_;
     }
   }
-  return force * separation_coeff;
+  return force * separation_coeff * (-1.);
 }
 
 Point Boid::cohesion(const std::vector<Boid>& neighbors,
@@ -68,3 +67,5 @@ void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
 
   position_ = position_ + velocity_ * delta_t;
 }
+
+
