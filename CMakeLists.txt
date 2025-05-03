@@ -24,7 +24,7 @@ string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-o
 #   le dipendenze vengono identificate automaticamente
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
 
-add_executable(boids src/main.cpp src/boid.cpp src/point.cpp  src/sfml.cpp     ) 
+add_executable(boids src/main.cpp src/boid.cpp src/point.cpp  src/sfml.cpp ) 
 target_link_libraries(boids sfml-graphics)
 
 # se il testing e' abilitato...
@@ -35,5 +35,6 @@ if (BUILD_TESTING)
   # add_executable(all.t all.t.cpp complex.t.cpp)
   # aggiungi l'eseguibile all.t alla lista dei test
   # add_test(NAME all.t COMMAND all.t)
-
+  add_executable(boids.t src/main.cpp src/boid.cpp src/point.cpp  src/sfml.cpp ) 
+  target_link_libraries(boids.t sfml-graphics)
 endif()
