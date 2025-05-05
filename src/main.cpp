@@ -57,12 +57,14 @@ int main() {
       sf::VideoMode(constants::window_width, constants::window_height),
       "Boids Simulation");
 
-  const double delta_t = 10;
+  const double delta_t = 5;
   const double neighborhood_radius = 400.0;
   const double separation_dist = 20.0;
-  const double separation_coeff = 0.03;
-  const double cohesion_coeff = 0.01;
-  const double alignment_coeff = 0.5;
+  const double separation_coeff = 0.05;
+  const double cohesion_coeff = 0.001;
+  const double alignment_coeff = 0.05;
+
+  window.setFramerateLimit(60);
 
   while (window.isOpen()) {
     sf::Event event;
@@ -81,11 +83,26 @@ int main() {
     // Draw boids
     window.clear(constants::window_color);
     for (const auto& b : boid_vector) {
-      sf::CircleShape shape(constants::boid_size);
-      shape.setFillColor(constants::boid_color);
-      shape.setPosition(static_cast<float>(b.position().x()),
-                        static_cast<float>(b.position().y()));
-      window.draw(shape);
+      sf::ConvexShape triangle;
+      triangle.setPointCount(3);
+      triangle.setPoint(0, sf::Vector2f(0.f, -constants::boid_size));  // punta
+      triangle.setPoint(
+          1, sf::Vector2f(constants::boid_size / 2, constants::boid_size));
+      triangle.setPoint(
+          2, sf::Vector2f(-constants::boid_size / 2, constants::boid_size));
+
+      triangle.setFillColor(constants::boid_color);
+
+      // Imposta la posizione
+      triangle.setPosition(static_cast<float>(b.position().x()),
+                           static_cast<float>(b.position().y()));
+
+      // Calcola l’angolo
+      float angle =
+      static_cast<float>((std::atan2(b.velocity().y(), b.velocity().x()) * 180 / M_PI) + 90);
+      triangle.setRotation(angle);
+
+      window.draw(triangle);
     }
     window.display();
   }
