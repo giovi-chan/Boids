@@ -1,29 +1,33 @@
 #ifndef BOID_HPP
 #define BOID_HPP
 
-#include "point.hpp"
 #include <vector>
 
+#include "point.hpp"
+
+namespace boid{
 class Boid {
-  Point position_;
-  Point velocity_;
+  point::Point position_;
+  point::Point velocity_;
 
  public:
-  Boid(Point position = Point{0, 0}, Point velocity = Point{0, 0});
+  Boid(point::Point position = point::Point(0., 0.),
+       point::Point velocity = point::Point(0., 0.));
 
-  Point position() const;
-  Point velocity() const;
+  point::Point position() const;
+  point::Point velocity() const;
 
   void update(double delta_t, const std::vector<Boid>& neighbors,
               double separation_dist, double separation_coeff,
               double cohesion_coeff, double alignment_coeff);
 
-  Point separation(const std::vector<Boid>& neighbors, double separation_dist,
-                   double separation_coeff) const;
-  Point cohesion(const std::vector<Boid>& neighbors,
-                 double cohesion_coeff) const;
-  Point alignment(const std::vector<Boid>& neighbors,
-                  double alignment_coeff) const;
+  point::Point separation(const std::vector<Boid>& neighbors,
+                          double separation_dist,
+                          double separation_coeff) const;
+  point::Point cohesion(const std::vector<Boid>& neighbors,
+                        double cohesion_coeff) const;
+  point::Point alignment(const std::vector<Boid>& neighbors,
+                         double alignment_coeff) const;
 };
-
+}
 #endif

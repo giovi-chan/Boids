@@ -35,6 +35,6 @@ if (BUILD_TESTING)
   # add_executable(all.t all.t.cpp complex.t.cpp)
   # aggiungi l'eseguibile all.t alla lista dei test
   # add_test(NAME all.t COMMAND all.t)
-  add_executable(boids.t src/main.cpp src/boid.cpp src/point.cpp  src/sfml.cpp ) 
+  add_executable(boids.t  src/test.cpp src/boid.cpp src/point.cpp  src/sfml.cpp ) 
   target_link_libraries(boids.t sfml-graphics)
 endif()

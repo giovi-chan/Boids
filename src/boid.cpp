@@ -1,20 +1,22 @@
 #include "../include/boid.hpp"
+
 #include <cassert>
 
-// Constructor    
-Boid::Boid(Point position, Point velocity)
+namespace boid{
+// Constructor
+Boid::Boid(point::Point position, point::Point velocity)
     : position_{position}, velocity_{velocity} {}
 
 // getters
-Point Boid::position() const { return position_; }
-Point Boid::velocity() const { return velocity_; }
+point::Point Boid::position() const { return position_; }
+point::Point Boid::velocity() const { return velocity_; }
 
 // flight rules
-Point Boid::alignment(const std::vector<Boid>& neighbors,
-                      double alignment_coeff) const {
-  if (neighbors.empty()) return Point{0, 0};
+point::Point Boid::alignment(const std::vector<Boid>& neighbors,
+                             double alignment_coeff) const {
+  if (neighbors.empty()) return point::Point{0, 0};
 
-  Point avg_velocity{0, 0};
+  point::Point avg_velocity{0, 0};
   for (const auto& neighbor : neighbors) {
     avg_velocity = avg_velocity + neighbor.velocity();
   }
@@ -23,9 +25,10 @@ Point Boid::alignment(const std::vector<Boid>& neighbors,
   return (avg_velocity - velocity_) * alignment_coeff;
 }
 
-Point Boid::separation(const std::vector<Boid>& neighbors,
-                       double separation_dist, double separation_coeff) const {
-  Point force{0., 0.};
+point::Point Boid::separation(const std::vector<Boid>& neighbors,
+                              double separation_dist,
+                              double separation_coeff) const {
+  point::Point force{0., 0.};
   for (const auto& neighbor : neighbors) {
     double dist = (position_ - neighbor.position()).distance();
     if (dist < separation_dist) {
@@ -35,11 +38,11 @@ Point Boid::separation(const std::vector<Boid>& neighbors,
   return force * separation_coeff * (-1.);
 }
 
-Point Boid::cohesion(const std::vector<Boid>& neighbors,
-                     double cohesion_coeff) const {
-  if (neighbors.empty()) return Point{0, 0};
+point::Point Boid::cohesion(const std::vector<Boid>& neighbors,
+                            double cohesion_coeff) const {
+  if (neighbors.empty()) return point::Point{0, 0};
 
-  Point center_of_mass{0, 0};
+  point::Point center_of_mass{0, 0};
   for (const auto& neighbor : neighbors) {
     center_of_mass = center_of_mass + neighbor.position();
   }
@@ -53,10 +56,10 @@ void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
                   double cohesion_coeff, double alignment_coeff) {
   assert(delta_t >= 0);
 
-  Point separation_force =
+  point::Point separation_force =
       separation(neighbors, separation_dist, separation_coeff);
-  Point cohesion_force = cohesion(neighbors, cohesion_coeff);
-  Point alignment_force = alignment(neighbors, alignment_coeff);
+  point::Point cohesion_force = cohesion(neighbors, cohesion_coeff);
+  point::Point alignment_force = alignment(neighbors, alignment_coeff);
 
   velocity_ = velocity_ + separation_force + cohesion_force + alignment_force;
 
@@ -67,5 +70,4 @@ void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
 
   position_ = position_ + velocity_ * delta_t;
 }
-
-
+}

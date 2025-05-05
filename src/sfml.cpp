@@ -1,26 +1,28 @@
+#include "../include/sfml.hpp"
 
-// #include "sfml.hpp"
+#include <SFML/Graphics.hpp>
 
-// #include <SFML/Graphics.hpp>
+void render_boids(const std::vector<boid::Boid>& boids, int window_width,
+                  int window_height) {
+  sf::RenderWindow window(sf::VideoMode(window_width, window_height),
+                          "Boids Simulation");
 
-// #include "constants.hpp"
+  while (window.isOpen()) {
+    sf::Event event;
+    while (window.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) window.close();
+    }
 
-// #include <cassert>
+    window.clear(constants::window_color);
 
-// namespace boids {
-// void display_circle(sf::RenderWindow& window, double radius, Boid& boid,
-//                     sf::Color color) {
-//   assert(radius >= 0.);
-//   sf::CircleShape circle(radius);
-//   circle.setOutlineColor(color);
-//   circle.setOutlineThickness(constants::range_thickness);
+    for (const auto& boid : boids) {
+      sf::CircleShape shape(constants::boid_size);  // cerchio
+      shape.setFillColor(constants::boid_color);
+      shape.setPosition(static_cast<float>(boid.position().x()),
+                        static_cast<float>(boid.position().y()));
+      window.draw(shape);
+    }
 
-//   // makes the circle internally transparent
-//   circle.setFillColor(sf::Color::Transparent);
-
-//   // sets the position centered on the boid
-//   circle.setPosition(boid.position().x() - radius, boid.position().y() - radius);
-
-//   window.draw(circle);
-// }
-// }  // namespace boids
+    window.display();
+  }
+}
