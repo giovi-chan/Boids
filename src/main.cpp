@@ -1,3 +1,4 @@
+#include <SFML/Graphics.hpp>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -20,10 +21,23 @@ void initialize_boids(std::vector<boid::Boid>& boids, int count, double x_min,
     double vel_angle = uniform(0, 2 * M_PI, mt);
     double vel_magnitude = uniform(vel_min, vel_max, mt);
     point::Point vel(vel_magnitude * std::cos(vel_angle),
-              vel_magnitude * std::sin(vel_angle));
+                     vel_magnitude * std::sin(vel_angle));
 
     boids.push_back(boid::Boid(pos, vel));
   }
+}
+
+std::vector<boid::Boid> get_neighbors(const boid::Boid& current,
+                                      const std::vector<boid::Boid>& all_boids,
+                                      double radius) {
+  std::vector<boid::Boid> neighbors;
+  for (const auto& other : all_boids) {
+    if (&current != &other &&
+        (current.position() - other.position()).distance() < radius) {
+      neighbors.push_back(other);
+    }
+  }
+  return neighbors;
 }
 
 int main() {
@@ -39,13 +53,41 @@ int main() {
   initialize_boids(boid_vector, num_boids, x_min, x_max, y_min, y_max, vel_min,
                    vel_max, mt);
 
-  render_boids(boid_vector, constants::window_width, constants::window_height);
+  sf::RenderWindow window(
+      sf::VideoMode(constants::window_width, constants::window_height),
+      "Boids Simulation");
 
-  for (const auto& boid : boid_vector) {
-    std::cout << "Posizione: (" << boid.position().x() << ", "
-              << boid.position().y() << ")";
-    std::cout << " | Velocità: (" << boid.velocity().x() << ", "
-              << boid.velocity().y() << ")\n";
+  const double delta_t = 10;
+  const double neighborhood_radius = 400.0;
+  const double separation_dist = 20.0;
+  const double separation_coeff = 0.03;
+  const double cohesion_coeff = 0.01;
+  const double alignment_coeff = 0.5;
+
+  while (window.isOpen()) {
+    sf::Event event;
+    while (window.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) window.close();
+    }
+
+    // Update boids
+    std::vector<boid::Boid> boid_copy = boid_vector;
+    for (auto& b : boid_vector) {
+      auto neighbors = get_neighbors(b, boid_copy, neighborhood_radius);
+      b.update(delta_t, neighbors, separation_dist, separation_coeff,
+               cohesion_coeff, alignment_coeff);
+    }
+
+    // Draw boids
+    window.clear(constants::window_color);
+    for (const auto& b : boid_vector) {
+      sf::CircleShape shape(constants::boid_size);
+      shape.setFillColor(constants::boid_color);
+      shape.setPosition(static_cast<float>(b.position().x()),
+                        static_cast<float>(b.position().y()));
+      window.draw(shape);
+    }
+    window.display();
   }
 
   return 0;

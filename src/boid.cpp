@@ -1,4 +1,5 @@
 #include "../include/boid.hpp"
+#include "../include/constants.hpp"
 
 #include <cassert>
 
@@ -69,5 +70,16 @@ void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
   }
 
   position_ = position_ + velocity_ * delta_t;
+
+  // Effetto Pac-Man (wrap around)
+if (position_.x() < 0)
+position_.set_x(position_.x() + constants::window_width);
+else if (position_.x() >= constants::window_width)
+position_.set_x(position_.x() - constants::window_width);
+
+if (position_.y() < 0)
+position_.set_y(position_.y() + constants::window_height);
+else if (position_.y() >= constants::window_height)
+position_.set_y(position_.y() - constants::window_height);
 }
 }

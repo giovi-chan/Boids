@@ -9,6 +9,8 @@ Point::Point(double x, double y) : x_{x}, y_{y} {}
 
 double Point::x() const { return x_; }
 double Point::y() const { return y_; }
+void Point::set_x(double x) { x_ = x; }
+void Point::set_y(double y) { y_ = y; }
 
 double Point::distance() const { return std::sqrt(x_ * x_ + y_ * y_); }
 double Point::distance(Point const& other) const {
