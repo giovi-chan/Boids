@@ -17,13 +17,13 @@ cmake --build build/release
 to run the simulation:
 
 ```
-build/release/Boids
+build/release/boids
 ```
 
 to run the test for the program:
 
 ```
-build/release/Boids.t
+build/release/boids.t
 ```
 
 -----
@@ -42,13 +42,13 @@ cmake --build build/debug
 to run the simulation:
 
 ```
-build/debug/Boids
+build/debug/boids
 ```
 
 to run the test for the program:
 
 ```
-build/debug/Boids.t
+build/debug/boids.t
 ```
 
 -----
