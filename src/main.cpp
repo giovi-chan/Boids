@@ -33,7 +33,7 @@ std::vector<boid::Boid> get_neighbors(const boid::Boid& current,
   std::vector<boid::Boid> neighbors;
   for (const auto& other : all_boids) {
     if (&current != &other &&
-        (current.position() - other.position()).distance() < radius) {
+        (current.get_position() - other.get_position()).distance() < radius) {
       neighbors.push_back(other);
     }
   }
@@ -57,7 +57,7 @@ int main() {
       sf::VideoMode(constants::window_width, constants::window_height),
       "Boids Simulation");
 
-  const double delta_t = 5;
+  const double delta_t = 1;
   const double neighborhood_radius = 400.0;
   const double separation_dist = 20.0;
   const double separation_coeff = 0.05;
@@ -94,12 +94,12 @@ int main() {
       triangle.setFillColor(constants::boid_color);
 
       // Imposta la posizione
-      triangle.setPosition(static_cast<float>(b.position().x()),
-                           static_cast<float>(b.position().y()));
+      triangle.setPosition(static_cast<float>(b.get_position().get_x()),
+                           static_cast<float>(b.get_position().get_y()));
 
       // Calcola l’angolo
       float angle =
-      static_cast<float>((std::atan2(b.velocity().y(), b.velocity().x()) * 180 / M_PI) + 90);
+      static_cast<float>((std::atan2(b.get_velocity().get_y(), b.get_velocity().get_x()) * 180 / M_PI) + 90);
       triangle.setRotation(angle);
 
       window.draw(triangle);

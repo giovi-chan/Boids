@@ -1,27 +1,28 @@
 #include "../include/boid.hpp"
-#include "../include/constants.hpp"
 
 #include <cassert>
 
-namespace boid{
+#include "../include/constants.hpp"
+
+namespace boid {
 // Constructor
 Boid::Boid(point::Point position, point::Point velocity)
     : position_{position}, velocity_{velocity} {}
 
 // getters
-point::Point Boid::position() const { return position_; }
-point::Point Boid::velocity() const { return velocity_; }
+point::Point Boid::get_position() const { return position_; }
+point::Point Boid::get_velocity() const { return velocity_; }
 
 // flight rules
 point::Point Boid::alignment(const std::vector<Boid>& neighbors,
-                             double alignment_coeff) const {
+                             double alignment_coeff) const {                       // const double?
   if (neighbors.empty()) return point::Point{0, 0};
 
   point::Point avg_velocity{0, 0};
   for (const auto& neighbor : neighbors) {
-    avg_velocity = avg_velocity + neighbor.velocity();
+    avg_velocity = avg_velocity + neighbor.get_velocity();
   }
-  avg_velocity = avg_velocity * (1.0 / neighbors.size());
+  avg_velocity = avg_velocity / static_cast<double>(neighbors.size());
 
   return (avg_velocity - velocity_) * alignment_coeff;
 }
@@ -31,9 +32,9 @@ point::Point Boid::separation(const std::vector<Boid>& neighbors,
                               double separation_coeff) const {
   point::Point force{0., 0.};
   for (const auto& neighbor : neighbors) {
-    double dist = (position_ - neighbor.position()).distance();
+    double dist = (position_ - neighbor.get_position()).distance();
     if (dist < separation_dist) {
-      force = force + neighbor.position() - position_;
+      force = force + neighbor.get_position() - position_;
     }
   }
   return force * separation_coeff * (-1.);
@@ -45,7 +46,7 @@ point::Point Boid::cohesion(const std::vector<Boid>& neighbors,
 
   point::Point center_of_mass{0, 0};
   for (const auto& neighbor : neighbors) {
-    center_of_mass = center_of_mass + neighbor.position();
+    center_of_mass = center_of_mass + neighbor.get_position();
   }
   center_of_mass = center_of_mass * (1.0 / neighbors.size());
 
@@ -72,14 +73,14 @@ void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
   position_ = position_ + velocity_ * delta_t;
 
   // Effetto Pac-Man (wrap around)
-if (position_.x() < 0)
-position_.set_x(position_.x() + constants::window_width);
-else if (position_.x() >= constants::window_width)
-position_.set_x(position_.x() - constants::window_width);
+  if (position_.get_x() < 0)
+    position_.set_x(position_.get_x() + constants::window_width);
+  else if (position_.get_x() >= constants::window_width)
+    position_.set_x(position_.get_x() - constants::window_width);
 
-if (position_.y() < 0)
-position_.set_y(position_.y() + constants::window_height);
-else if (position_.y() >= constants::window_height)
-position_.set_y(position_.y() - constants::window_height);
+  if (position_.get_y() < 0)
+    position_.set_y(position_.get_y() + constants::window_height);
+  else if (position_.get_y() >= constants::window_height)
+    position_.set_y(position_.get_y() - constants::window_height);
 }
-}
+}  // namespace boid

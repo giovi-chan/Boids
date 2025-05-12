@@ -14,7 +14,7 @@ inline constexpr float boid_size = 6.0f;
 
 // Colore  (RGB)
 inline const sf::Color boid_color = sf::Color::Yellow;
-inline const sf::Color window_color = sf::Color::Red;
+inline const sf::Color window_color = sf::Color::Blue;
 
 // Velocità iniziali
 inline constexpr double min_velocity = 0.;

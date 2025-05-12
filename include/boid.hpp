@@ -14,8 +14,8 @@ class Boid {
   Boid(point::Point position = point::Point(0., 0.),
        point::Point velocity = point::Point(0., 0.));
 
-  point::Point position() const;
-  point::Point velocity() const;
+  point::Point get_position() const;
+  point::Point get_velocity() const;
 
   void update(double delta_t, const std::vector<Boid>& neighbors,
               double separation_dist, double separation_coeff,
