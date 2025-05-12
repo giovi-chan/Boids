@@ -12,14 +12,13 @@ double uniform(double a, double b, std::mt19937& mt) {
   return dist(mt);
 }
 
-void initialize_boids(std::vector<boid::Boid>& boids, int count, double x_min,
-                      double x_max, double y_min, double y_max, double vel_min,
-                      double vel_max, std::mt19937& mt) {
+void initialize_boids(std::vector<boid::Boid>& boids, std::mt19937& mt) {
   boids.clear();
-  for (int i = 0; i < count; ++i) {
-    point::Point pos(uniform(x_min, x_max, mt), uniform(y_min, y_max, mt));
+  for (int i = 0; i < constants::num_boids; ++i) {
+    point::Point pos(uniform(0., constants::window_width, mt),
+                     uniform(0, constants::window_height, mt));
     double vel_angle = uniform(0, 2 * M_PI, mt);
-    double vel_magnitude = uniform(vel_min, vel_max, mt);
+    double vel_magnitude = uniform(constants::min_velocity, constants::max_velocity, mt);
     point::Point vel(vel_magnitude * std::cos(vel_angle),
                      vel_magnitude * std::sin(vel_angle));
 
@@ -33,7 +32,8 @@ std::vector<boid::Boid> get_neighbors(const boid::Boid& current,
   std::vector<boid::Boid> neighbors;
   for (const auto& other : all_boids) {
     if (&current != &other &&
-        (current.get_position() - other.get_position()).distance() < radius) {
+        toroidal_distance(current.get_position() - other.get_position()) <
+            radius) {
       neighbors.push_back(other);
     }
   }
@@ -43,22 +43,16 @@ std::vector<boid::Boid> get_neighbors(const boid::Boid& current,
 int main() {
   std::mt19937 mt(std::random_device{}());
 
-  const int num_boids = 100;
   std::vector<boid::Boid> boid_vector;
 
-  double x_min = 0.0, x_max = constants::window_width;
-  double y_min = 0.0, y_max = constants::window_height;
-  double vel_min = constants::min_velocity, vel_max = constants::max_velocity;
-
-  initialize_boids(boid_vector, num_boids, x_min, x_max, y_min, y_max, vel_min,
-                   vel_max, mt);
+  initialize_boids(boid_vector, mt);
 
   sf::RenderWindow window(
       sf::VideoMode(constants::window_width, constants::window_height),
       "Boids Simulation");
 
   const double delta_t = 1;
-  const double neighborhood_radius = 400.0;
+  const double neighborhood_radius = 40.0;
   const double separation_dist = 20.0;
   const double separation_coeff = 0.05;
   const double cohesion_coeff = 0.001;
@@ -80,7 +74,7 @@ int main() {
                cohesion_coeff, alignment_coeff);
     }
 
-    // Draw boids
+    // Disegna boids
     window.clear(constants::window_color);
     for (const auto& b : boid_vector) {
       sf::ConvexShape triangle;
@@ -98,8 +92,10 @@ int main() {
                            static_cast<float>(b.get_position().get_y()));
 
       // Calcola l’angolo
-      float angle =
-      static_cast<float>((std::atan2(b.get_velocity().get_y(), b.get_velocity().get_x()) * 180 / M_PI) + 90);
+      float angle = static_cast<float>(
+          (std::atan2(b.get_velocity().get_y(), b.get_velocity().get_x()) *
+           180 / M_PI) +
+          90);
       triangle.setRotation(angle);
 
       window.draw(triangle);
