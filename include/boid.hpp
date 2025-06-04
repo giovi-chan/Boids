@@ -11,8 +11,8 @@ class Boid {
   point::Point velocity_;
 
  public:
-  Boid(point::Point position = point::Point(0., 0.),
-       point::Point velocity = point::Point(0., 0.));
+  Boid(point::Point position = point::Point(),
+       point::Point velocity = point::Point());
 
   point::Point get_position() const;
   point::Point get_velocity() const;
@@ -29,5 +29,9 @@ class Boid {
   point::Point alignment(const std::vector<Boid>& neighbors,
                          double alignment_coeff) const;
 };
+
+
+point::Point relative_position(const point::Point& , const point::Point& );
+
 }
 #endif

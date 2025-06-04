@@ -15,31 +15,31 @@ point::Point Boid::get_velocity() const { return velocity_; }
 
 point::Point relative_position(point::Point const& p1, point::Point const& p2) {
   double delta_x{p2.get_x() - p1.get_x()};
-  double delta_y{p2.get_y() - p1.get_x()};
+  double delta_y{p2.get_y() - p1.get_y()};
 
   if (delta_x > static_cast<double>(constants::window_width / 2.)) {
     delta_x -= constants::window_width;
-    assert(delta_x < 0.);
+    
   } else if (delta_x < static_cast<double>(constants::window_width / (-2.))) {
     delta_x += constants::window_width;
-    assert(delta_x > 0.);
+  
   }
 
   if (delta_y > static_cast<double>(constants::window_height / 2.)) {
     delta_y -= constants::window_height;
-    assert(delta_y < 0.);
+  
   } else if (delta_y < static_cast<double>(constants::window_height / (-2.))) {
     delta_y += constants::window_height;
-    assert(delta_y > 0.);
+  
   }
-  return {delta_x, delta_y};
+  return point::Point{delta_x, delta_y};
 }
 
 // flight rules
 point::Point Boid::alignment(const std::vector<Boid>& neighbors,
                              double alignment_coeff) const {
   if (neighbors.empty()) return point::Point{0., 0.};
-  assert(neighbors.size() !=0);
+
   point::Point avg_velocity{0., 0.};
   for (const auto& neighbor : neighbors) {
     avg_velocity = avg_velocity + neighbor.get_velocity();
@@ -54,12 +54,13 @@ point::Point Boid::separation(const std::vector<Boid>& neighbors,
                               double separation_coeff) const {
   point::Point force{0., 0.};
   for (const auto& neighbor : neighbors) {
-    double dist = relative_position(position_, neighbor.get_position()).distance();
+    double dist =
+        relative_position(neighbor.get_position(), position_).distance();
     if (dist < separation_dist) {
-      force = force - neighbor.get_position() + position_;
+      force = force + relative_position(neighbor.get_position(), position_);
     }
   }
-  return force * separation_coeff ;
+  return force * separation_coeff;
 }
 
 point::Point Boid::cohesion(const std::vector<Boid>& neighbors,
@@ -68,11 +69,12 @@ point::Point Boid::cohesion(const std::vector<Boid>& neighbors,
 
   point::Point center_of_mass{0, 0};
   for (const auto& neighbor : neighbors) {
-    center_of_mass = center_of_mass + relative_position(neighbor.get_position(), {0.,0.});
+    center_of_mass =
+        center_of_mass + relative_position(position_, neighbor.get_position());
   }
   center_of_mass = center_of_mass / static_cast<double>(neighbors.size());
 
-  return (center_of_mass - position_) * cohesion_coeff;
+  return center_of_mass * cohesion_coeff;
 }
 
 void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
@@ -86,7 +88,6 @@ void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
   point::Point alignment_force = alignment(neighbors, alignment_coeff);
 
   velocity_ = velocity_ + separation_force + cohesion_force + alignment_force;
-
 
   if (velocity_.distance() > constants::max_velocity) {
     velocity_ = velocity_ * (constants::max_velocity / velocity_.distance());

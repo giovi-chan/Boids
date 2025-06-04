@@ -16,9 +16,10 @@ void initialize_boids(std::vector<boid::Boid>& boids, std::mt19937& mt) {
   boids.clear();
   for (int i = 0; i < constants::num_boids; ++i) {
     point::Point pos(uniform(0., constants::window_width, mt),
-                     uniform(0, constants::window_height, mt));
-    double vel_angle = uniform(0, 2 * M_PI, mt);
-    double vel_magnitude = uniform(constants::min_velocity, constants::max_velocity, mt);
+                     uniform(0., constants::window_height, mt));
+    double vel_angle = uniform(0., 2 * M_PI, mt);
+    double vel_magnitude =
+        uniform(constants::min_velocity, constants::max_velocity, mt);
     point::Point vel(vel_magnitude * std::cos(vel_angle),
                      vel_magnitude * std::sin(vel_angle));
 
@@ -31,9 +32,9 @@ std::vector<boid::Boid> get_neighbors(const boid::Boid& current,
                                       double radius) {
   std::vector<boid::Boid> neighbors;
   for (const auto& other : all_boids) {
-    if (&current != &other &&
-        toroidal_distance(current.get_position() - other.get_position()) <
-            radius) {
+    point::Point p =
+        boid::relative_position(current.get_position(), other.get_position());
+    if (&current != &other && p.distance() < radius) {
       neighbors.push_back(other);
     }
   }
@@ -52,11 +53,11 @@ int main() {
       "Boids Simulation");
 
   const double delta_t = 1;
-  const double neighborhood_radius = 40.0;
-  const double separation_dist = 20.0;
+  const double neighborhood_radius = 200.0;
+  const double separation_dist = 40.0;
   const double separation_coeff = 0.05;
-  const double cohesion_coeff = 0.001;
-  const double alignment_coeff = 0.05;
+  const double cohesion_coeff = 0.005;
+  const double alignment_coeff = 0.5;
 
   window.setFramerateLimit(60);
 
@@ -66,7 +67,7 @@ int main() {
       if (event.type == sf::Event::Closed) window.close();
     }
 
-    // Update boids
+    // Aggiorna boids
     std::vector<boid::Boid> boid_copy = boid_vector;
     for (auto& b : boid_vector) {
       auto neighbors = get_neighbors(b, boid_copy, neighborhood_radius);
