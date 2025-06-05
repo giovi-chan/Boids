@@ -8,7 +8,7 @@ class Point {
 
   // methods
  public:
-  Point(double x = 0., double y = 0.);
+  Point(double x = 0., double y = 0.);   //dichiarazione del costruttore, adesso il compilatore sa che esiste un costruttore pubblico che accetta due double e che presenta 0 come valori di default se uno o entrambi gli argomenti mancano
 
   double get_x() const;         // getters
   double get_y() const;
@@ -24,6 +24,7 @@ Point operator+(Point const&, Point const&);
 Point operator-(Point const&, Point const&);
 Point operator*(Point const&, double);
 Point operator/(Point const&, double);
+Point relative_position(const Point& , const Point& );
 double toroidal_distance(Point const&);
 double toroidal_distance(Point const&, Point const&);
 

@@ -11,8 +11,17 @@ class Boid {
   point::Point velocity_;
 
  public:
-  Boid(point::Point position = point::Point(),
-       point::Point velocity = point::Point());
+
+  Boid(point::Point position = point::Point(0., 0.),
+            point::Point velocity = point::Point(0., 0.));
+
+ 
+       /*
+       problemi se scrivo 
+       Boid(point::Point position = (0., 0.),
+       point::Point velocity = (0., 0.));
+
+       */
 
   point::Point get_position() const;
   point::Point get_velocity() const;
@@ -31,7 +40,9 @@ class Boid {
 };
 
 
-point::Point relative_position(const point::Point& , const point::Point& );
+//free functions
+
+
 
 }
 #endif

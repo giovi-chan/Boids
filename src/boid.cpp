@@ -13,28 +13,6 @@ Boid::Boid(point::Point position, point::Point velocity)
 point::Point Boid::get_position() const { return position_; }
 point::Point Boid::get_velocity() const { return velocity_; }
 
-point::Point relative_position(point::Point const& p1, point::Point const& p2) {
-  double delta_x{p2.get_x() - p1.get_x()};
-  double delta_y{p2.get_y() - p1.get_y()};
-
-  if (delta_x > static_cast<double>(constants::window_width / 2.)) {
-    delta_x -= constants::window_width;
-    
-  } else if (delta_x < static_cast<double>(constants::window_width / (-2.))) {
-    delta_x += constants::window_width;
-  
-  }
-
-  if (delta_y > static_cast<double>(constants::window_height / 2.)) {
-    delta_y -= constants::window_height;
-  
-  } else if (delta_y < static_cast<double>(constants::window_height / (-2.))) {
-    delta_y += constants::window_height;
-  
-  }
-  return point::Point{delta_x, delta_y};
-}
-
 // flight rules
 point::Point Boid::alignment(const std::vector<Boid>& neighbors,
                              double alignment_coeff) const {
@@ -55,9 +33,9 @@ point::Point Boid::separation(const std::vector<Boid>& neighbors,
   point::Point force{0., 0.};
   for (const auto& neighbor : neighbors) {
     double dist =
-        relative_position(neighbor.get_position(), position_).distance();
+        point::relative_position(neighbor.get_position(), position_).distance();
     if (dist < separation_dist) {
-      force = force + relative_position(neighbor.get_position(), position_);
+      force = force + point::relative_position(neighbor.get_position(), position_);
     }
   }
   return force * separation_coeff;
@@ -70,7 +48,7 @@ point::Point Boid::cohesion(const std::vector<Boid>& neighbors,
   point::Point center_of_mass{0, 0};
   for (const auto& neighbor : neighbors) {
     center_of_mass =
-        center_of_mass + relative_position(position_, neighbor.get_position());
+        center_of_mass + point::relative_position(position_, neighbor.get_position());
   }
   center_of_mass = center_of_mass / static_cast<double>(neighbors.size());
 
@@ -106,4 +84,7 @@ void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
   else if (position_.get_y() >= constants::window_height)
     position_.set_y(position_.get_y() - constants::window_height);
 }
+
+
+
 }  // namespace boid

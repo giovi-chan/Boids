@@ -6,6 +6,7 @@
 #include "../include/boid.hpp"
 #include "../include/constants.hpp"
 #include "../include/point.hpp"
+
 TEST_CASE("testing Point class") {
   point::Point p0;
   point::Point p1(1., 2.);
