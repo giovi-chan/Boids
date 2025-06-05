@@ -34,7 +34,9 @@ std::vector<boid::Boid> get_neighbors(const boid::Boid& current,
   for (const auto& other : all_boids) {
     point::Point p =
        point::relative_position(current.get_position(), other.get_position());
-    if (&current != &other && p.distance() < radius) {
+    double theta= current.angle(other);
+
+    if (&current != &other && p.distance() < radius && theta < constants::field_of_view) {
       neighbors.push_back(other);
     }
   }

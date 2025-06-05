@@ -1,6 +1,8 @@
+
 #include "../include/boid.hpp"
 
 #include <cassert>
+#include <cmath>
 
 #include "../include/constants.hpp"
 
@@ -16,7 +18,25 @@ point::Point Boid::get_velocity() const { return velocity_; }
 // setters
 void Boid::set_position(const point::Point& p) { position_ = p; }
 void Boid::set_velocity(const point::Point& v) { velocity_ = v; }
+// angle
 
+double Boid::angle(const Boid& other) const {
+  point::Point delta =
+      point::relative_position(this->position_, other.get_position());
+
+  double vel_mag = velocity_.distance();
+  double delta_mag = delta.distance();
+
+  if (vel_mag == 0.0 || delta_mag == 0.0) {
+    return 0.0;
+  }
+
+  double cosine =
+      (velocity_.get_x() * delta.get_x() + velocity_.get_y() * delta.get_y()) /
+      (vel_mag * delta_mag);
+
+  return std::acos(cosine);
+} 
 
 // flight rules
 point::Point Boid::alignment(const std::vector<Boid>& neighbors,

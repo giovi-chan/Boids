@@ -27,6 +27,8 @@ class Boid {
   void set_position(const point::Point&);
   void set_velocity(const point::Point&);
 
+  double angle (const Boid& other) const;
+
   void update(double delta_t, const std::vector<Boid>& neighbors,
               double separation_dist, double separation_coeff,
               double cohesion_coeff, double alignment_coeff);
