@@ -5,26 +5,27 @@
 
 #include "point.hpp"
 
-namespace boid{
+namespace boid {
 class Boid {
   point::Point position_;
   point::Point velocity_;
 
  public:
-
   Boid(point::Point position = point::Point(0., 0.),
-            point::Point velocity = point::Point(0., 0.));
+       point::Point velocity = point::Point(0., 0.));
 
- 
-       /*
-       problemi se scrivo 
-       Boid(point::Point position = (0., 0.),
-       point::Point velocity = (0., 0.));
+  /*
+  problemi se scrivo
+  Boid(point::Point position = (0., 0.),
+  point::Point velocity = (0., 0.));
 
-       */
+  */
 
   point::Point get_position() const;
   point::Point get_velocity() const;
+
+  void set_position(const point::Point&);
+  void set_velocity(const point::Point&);
 
   void update(double delta_t, const std::vector<Boid>& neighbors,
               double separation_dist, double separation_coeff,
@@ -39,10 +40,7 @@ class Boid {
                          double alignment_coeff) const;
 };
 
+// free functions
 
-//free functions
-
-
-
-}
+}  // namespace boid
 #endif

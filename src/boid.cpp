@@ -13,6 +13,11 @@ Boid::Boid(point::Point position, point::Point velocity)
 point::Point Boid::get_position() const { return position_; }
 point::Point Boid::get_velocity() const { return velocity_; }
 
+// setters
+void Boid::set_position(const point::Point& p) { position_ = p; }
+void Boid::set_velocity(const point::Point& v) { velocity_ = v; }
+
+
 // flight rules
 point::Point Boid::alignment(const std::vector<Boid>& neighbors,
                              double alignment_coeff) const {
@@ -35,7 +40,8 @@ point::Point Boid::separation(const std::vector<Boid>& neighbors,
     double dist =
         point::relative_position(neighbor.get_position(), position_).distance();
     if (dist < separation_dist) {
-      force = force + point::relative_position(neighbor.get_position(), position_);
+      force =
+          force + point::relative_position(neighbor.get_position(), position_);
     }
   }
   return force * separation_coeff;
@@ -47,8 +53,8 @@ point::Point Boid::cohesion(const std::vector<Boid>& neighbors,
 
   point::Point center_of_mass{0, 0};
   for (const auto& neighbor : neighbors) {
-    center_of_mass =
-        center_of_mass + point::relative_position(position_, neighbor.get_position());
+    center_of_mass = center_of_mass + point::relative_position(
+                                          position_, neighbor.get_position());
   }
   center_of_mass = center_of_mass / static_cast<double>(neighbors.size());
 
@@ -84,7 +90,5 @@ void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
   else if (position_.get_y() >= constants::window_height)
     position_.set_y(position_.get_y() - constants::window_height);
 }
-
-
 
 }  // namespace boid

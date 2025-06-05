@@ -68,6 +68,37 @@ TEST_CASE("testing Point class") {
     CHECK(point::toroidal_distance(q4, q4) == doctest::Approx(0.00000000));
   }
 
+  SUBCASE("testing relative_position") {
+    point::Point q1(330., 120.);
+    point::Point q2(1010., 250.);
+    point::Point q3(90., 560.);
+    point::Point q4(940., 730.);
+    CHECK(point::relative_position(q1, q2).get_x() == -520.);
+    CHECK(point::relative_position(q1, q2).get_y() == 130.);
+    CHECK(point::relative_position(q1, q3).get_x() == -240.);
+    CHECK(point::relative_position(q1, q3).get_y() == -360.);
+    CHECK(point::relative_position(q1, q4).get_x() == -590.);
+    CHECK(point::relative_position(q1, q4).get_y() == -190.);
+    CHECK(point::relative_position(q2, q1).get_x() == 520.);
+    CHECK(point::relative_position(q2, q1).get_y() == -130.);
+    CHECK(point::relative_position(q2, q3).get_x() == 280.);
+    CHECK(point::relative_position(q2, q3).get_y() == 310.);
+    CHECK(point::relative_position(q2, q4).get_x() == -70.);
+    CHECK(point::relative_position(q2, q4).get_y() == -320.);
+    CHECK(point::relative_position(q3, q1).get_x() == 240.);
+    CHECK(point::relative_position(q3, q1).get_y() == 360.);
+    CHECK(point::relative_position(q3, q2).get_x() == -280.);
+    CHECK(point::relative_position(q3, q2).get_y() == -310.);
+    CHECK(point::relative_position(q3, q4).get_x() == -350.);
+    CHECK(point::relative_position(q3, q4).get_y() == 170.);
+    CHECK(point::relative_position(q4, q1).get_x() == 590.);
+    CHECK(point::relative_position(q4, q1).get_y() == 190.);
+    CHECK(point::relative_position(q4, q2).get_x() == +70);
+    CHECK(point::relative_position(q4, q2).get_y() == 320.);
+    CHECK(point::relative_position(q4, q3).get_x() == +350.);
+    CHECK(point::relative_position(q4, q3).get_y() == -170.);
+  }
+
   SUBCASE("testing operator +") {
     point::Point sum1 = p0 + p1;
     point::Point sum2 = p1 + p0;
@@ -141,6 +172,53 @@ TEST_CASE("testing Point class") {
     CHECK(q22.get_x() == doctest::Approx(9.00000000));
     CHECK(q22.get_y() == doctest::Approx(-15.00000000));
   }
+
+  SUBCASE("testing operator /") {
+    double constant1{2.};
+    double constant2{-3.};
+    point::Point q11 = p1 / constant1;
+    point::Point q12 = p1 / constant2;
+    point::Point q21 = p2 / constant1;
+    point::Point q22 = p2 / constant2;
+
+    CHECK(q11.get_x() == doctest::Approx(0.5));
+    CHECK(q11.get_y() == doctest::Approx(1.0));
+    CHECK(q12.get_x() == doctest::Approx(-1.0 / 3));
+    CHECK(q12.get_y() == doctest::Approx(-2.0 / 3));
+    CHECK(q21.get_x() == doctest::Approx(-1.5));
+    CHECK(q21.get_y() == doctest::Approx(2.5));
+    CHECK(q22.get_x() == doctest::Approx(1.0));
+    CHECK(q22.get_y() == doctest::Approx(-5.0 / 3));
+  }
 }
 
-TEST_CASE("testing Boid class") {}
+TEST_CASE("testing Boid class") {
+  SUBCASE("testing Boid constructor, getters and setters") {
+    point::Point initial_position(1.0, 2.0);
+    point::Point initial_velocity(0.5, -1.5);
+
+    boid::Boid b(initial_position, initial_velocity);
+
+    SUBCASE("Constructor initializes correctly") {
+      CHECK(b.get_position().get_x() == doctest::Approx(1.0));
+      CHECK(b.get_position().get_y() == doctest::Approx(2.0));
+      CHECK(b.get_velocity().get_x() == doctest::Approx(0.5));
+      CHECK(b.get_velocity().get_y() == doctest::Approx(-1.5));
+    }
+
+    SUBCASE("Setters update state correctly") {
+      point::Point new_position(3.0, 4.0);
+      point::Point new_velocity(-0.5, 2.5);
+
+      b.set_position(new_position);
+      b.set_velocity(new_velocity);
+
+      CHECK(b.get_position().get_x() == doctest::Approx(3.0));
+      CHECK(b.get_position().get_y() == doctest::Approx(4.0));
+      CHECK(b.get_velocity().get_x() == doctest::Approx(-0.5));
+      CHECK(b.get_velocity().get_y() == doctest::Approx(2.5));
+    }
+  }
+
+  SUBCASE("testing") {}
+}
