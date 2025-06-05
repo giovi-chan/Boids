@@ -23,9 +23,10 @@ string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-o
 # richiedi il componente graphics della libreria SFML, versione 2.5
 #   le dipendenze vengono identificate automaticamente
 find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
+find_package(TGUI REQUIRED)
 
 add_executable(boids src/main.cpp src/boid.cpp src/point.cpp  src/sfml.cpp ) 
-target_link_libraries(boids sfml-graphics)
+target_link_libraries(boids sfml-graphics tgui)
 
 # se il testing e' abilitato...
 #   per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
@@ -36,5 +37,5 @@ if (BUILD_TESTING)
   # aggiungi l'eseguibile all.t alla lista dei test
   # add_test(NAME all.t COMMAND all.t)
   add_executable(boids.t  src/test.cpp src/boid.cpp src/point.cpp  src/sfml.cpp ) 
-  target_link_libraries(boids.t sfml-graphics)
+  target_link_libraries(boids.t sfml-graphics tgui)
 endif()
