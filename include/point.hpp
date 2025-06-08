@@ -24,6 +24,7 @@ Point operator+(Point const&, Point const&);
 Point operator-(Point const&, Point const&);
 Point operator*(Point const&, double);
 Point operator/(Point const&, double);
+bool operator==(Point const&, Point const&);
 Point relative_position(const Point& , const Point& );
 double toroidal_distance(Point const&);
 double toroidal_distance(Point const&, Point const&);

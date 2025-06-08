@@ -34,9 +34,10 @@ double Boid::angle(const Boid& other) const {
   double cosine =
       (velocity_.get_x() * delta.get_x() + velocity_.get_y() * delta.get_y()) /
       (vel_mag * delta_mag);
+  cosine = std::max(-1.0, std::min(1.0, cosine));
 
   return std::acos(cosine);
-} 
+}
 
 // flight rules
 point::Point Boid::alignment(const std::vector<Boid>& neighbors,

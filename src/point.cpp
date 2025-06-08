@@ -45,6 +45,10 @@ Point operator/(Point const& p, double c) {
   return point;
 }
 
+bool operator==(Point const& p, Point const& q) {
+return (p.get_x()==q.get_x() && p.get_y()==q.get_y());
+}
+
 // free function relative position: dati due punti sulla finestra, calcola il
 // vettore p2-p1 che li congiunge, tenendo conto della geometria a toroide
 

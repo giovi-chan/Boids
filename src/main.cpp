@@ -55,11 +55,11 @@ int main() {
       "Boids Simulation");
 
   const double delta_t = 1;
-  const double neighborhood_radius = 200.0;
-  const double separation_dist = 40.0;
-  const double separation_coeff = 0.05;
+  const double neighborhood_radius = 50.0;
+  const double separation_dist = 20.0;
+  const double separation_coeff = 0.01;
   const double cohesion_coeff = 0.005;
-  const double alignment_coeff = 0.5;
+  const double alignment_coeff = 5;
 
   window.setFramerateLimit(60);
 
