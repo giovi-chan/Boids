@@ -100,7 +100,7 @@ void Boid::update(double delta_t, const std::vector<Boid>& neighbors,
 
   position_ = position_ + velocity_ * delta_t;
 
-  // Effetto Pac-Man (wrap around)
+  // Effetto Pac-Man
   if (position_.get_x() < 0)
     position_.set_x(position_.get_x() + constants::window_width);
   else if (position_.get_x() >= constants::window_width)

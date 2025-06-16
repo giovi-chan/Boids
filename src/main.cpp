@@ -9,7 +9,7 @@
 
 double uniform(double a, double b, std::mt19937& mt) {
   std::uniform_real_distribution<double> dist(a, b);
-  return dist(mt); 
+  return dist(mt);
 }
 
 void initialize_boids(std::vector<boid::Boid>& boids, std::mt19937& mt) {
@@ -33,10 +33,11 @@ std::vector<boid::Boid> get_neighbors(const boid::Boid& current,
   std::vector<boid::Boid> neighbors;
   for (const auto& other : all_boids) {
     point::Point p =
-       point::relative_position(current.get_position(), other.get_position());
-    double theta= current.angle(other);
+        point::relative_position(current.get_position(), other.get_position());
+    double theta = current.angle(other);
 
-    if (&current != &other && p.distance() < radius && theta < constants::field_of_view) {
+    if (&current != &other && p.distance() < radius &&
+        theta < constants::field_of_view) {
       neighbors.push_back(other);
     }
   }
@@ -56,10 +57,10 @@ int main() {
 
   const double delta_t = 1;
   const double neighborhood_radius = 50.0;
-  const double separation_dist = 20.0;
-  const double separation_coeff = 0.01;
-  const double cohesion_coeff = 0.005;
-  const double alignment_coeff = 5;
+  const double separation_dist = 10.0;
+  const double separation_coeff = 0.;
+  const double cohesion_coeff = 0.1;
+  const double alignment_coeff = 0.;
 
   window.setFramerateLimit(60);
 

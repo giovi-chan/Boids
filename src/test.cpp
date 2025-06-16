@@ -327,7 +327,7 @@ TEST_CASE("testing Boid class") {
       std::vector<boid::Boid> neighbors = {n1};
       point::Point result =
           b.separation(neighbors, separation_dist, separation_coeff);
-      CHECK(result.get_x() == doctest::Approx(1.5));
+      CHECK(result.get_x() == doctest::Approx(-1.5));
       CHECK(result.get_y() == doctest::Approx(0));
     }
 
@@ -338,14 +338,9 @@ TEST_CASE("testing Boid class") {
           boid::Boid(point::Point{-2., 0.}, point::Point{0., 0.}),
           boid::Boid(point::Point{10., 10.}, point::Point{0., 0.})};
 
-      // relative positions: (1,0) + (-2,0) = (-1,0)
-      // point::Point force =
-      //    point::Point{1., 0.} + point::Point{-2., 0.};  // (-1, 0)
-      // point::Point force = force * separation_coeff;        //-0.5,0)
-
       point::Point result =
           b.separation(neighbors, separation_dist, separation_coeff);
-      CHECK(result.get_x() == doctest::Approx(-0.5));
+      CHECK(result.get_x() == doctest::Approx(0.5));
       CHECK(result.get_y() == doctest::Approx(0.));
     }
 
@@ -358,6 +353,53 @@ TEST_CASE("testing Boid class") {
       point::Point result =
           b.separation(neighbors, separation_dist, separation_coeff);
       CHECK(result == point::Point{0., 0.});
+    }
+
+    SUBCASE("testing cohesion") {
+      double cohesion_coeff = 0.5;
+
+      SUBCASE("Cohesion with no neighbors") {
+        boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+        std::vector<boid::Boid> neighbors;
+        point::Point result = b.cohesion(neighbors, cohesion_coeff);
+        CHECK(result == point::Point{0., 0.});
+      }
+
+      SUBCASE("Cohesion with one neighbor") {
+        boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+        boid::Boid n1(point::Point{4., 0.}, point::Point{0., 0.});
+        std::vector<boid::Boid> neighbors = {n1};
+        point::Point result = b.cohesion(neighbors, cohesion_coeff);
+        // center of mass is (4, 0), relative to b is (4, 0)
+        CHECK(result.get_x() == doctest::Approx(2.0));
+        CHECK(result.get_y() == doctest::Approx(0.0));
+      }
+
+      SUBCASE("Cohesion with multiple neighbors") {
+        boid::Boid b(point::Point{1., 1.}, point::Point{1., 1.});
+        std::vector<boid::Boid> neighbors = {
+            boid::Boid(point::Point{3., 1.}, point::Point{0., 0.}),
+            boid::Boid(point::Point{1., 3.}, point::Point{0., 0.}),
+            boid::Boid(point::Point{-1., 1.}, point::Point{0., 0.})};
+
+        // center of mass = (3 + 1 + (-1)) / 3 = (1, 5/3)
+        // relative to b (1,1): (0, 2/3)
+        // scaled by coeff: (0, 1/3)
+        point::Point result = b.cohesion(neighbors, cohesion_coeff);
+        CHECK(result.get_x() == doctest::Approx(0.0));
+        CHECK(result.get_y() == doctest::Approx(1.0 / 3.0));
+      }
+
+      SUBCASE("Cohesion with neighbors all at same location as boid") {
+        boid::Boid b(point::Point{2., 2.}, point::Point{0., 0.});
+        std::vector<boid::Boid> neighbors = {
+            boid::Boid(point::Point{2., 2.}, point::Point{0., 0.}),
+            boid::Boid(point::Point{2., 2.}, point::Point{0., 0.})};
+
+        point::Point result = b.cohesion(neighbors, cohesion_coeff);
+        // Relative positions will all be (0,0), so center of mass is (0,0)
+        CHECK(result == point::Point{0., 0.});
+      }
     }
   }
 }
