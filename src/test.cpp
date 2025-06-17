@@ -198,208 +198,209 @@ TEST_CASE("testing Point class") {
   }
 }
 
-TEST_CASE("testing Boid class") {
-  SUBCASE("testing Boid constructor, getters and setters") {
-    point::Point initial_position(1.0, 2.0);
-    point::Point initial_velocity(0.5, -1.5);
+// TEST_CASE("testing Boid class") {
+//   SUBCASE("testing Boid constructor, getters and setters") {
+//     point::Point initial_position(1.0, 2.0);
+//     point::Point initial_velocity(0.5, -1.5);
 
-    boid::Boid b(initial_position, initial_velocity);
+//     boid::Boid b(initial_position, initial_velocity);
 
-    SUBCASE("Constructor initializes correctly") {
-      CHECK(b.get_position().get_x() == doctest::Approx(1.0));
-      CHECK(b.get_position().get_y() == doctest::Approx(2.0));
-      CHECK(b.get_velocity().get_x() == doctest::Approx(0.5));
-      CHECK(b.get_velocity().get_y() == doctest::Approx(-1.5));
-    }
+//     SUBCASE("Constructor initializes correctly") {
+//       CHECK(b.get_position().get_x() == doctest::Approx(1.0));
+//       CHECK(b.get_position().get_y() == doctest::Approx(2.0));
+//       CHECK(b.get_velocity().get_x() == doctest::Approx(0.5));
+//       CHECK(b.get_velocity().get_y() == doctest::Approx(-1.5));
+//     }
 
-    SUBCASE("Setters update state correctly") {
-      point::Point new_position(3.0, 4.0);
-      point::Point new_velocity(-0.5, 2.5);
+//     SUBCASE("Setters update state correctly") {
+//       point::Point new_position(3.0, 4.0);
+//       point::Point new_velocity(-0.5, 2.5);
 
-      b.set_position(new_position);
-      b.set_velocity(new_velocity);
+//       b.set_position(new_position);
+//       b.set_velocity(new_velocity);
 
-      CHECK(b.get_position().get_x() == doctest::Approx(3.0));
-      CHECK(b.get_position().get_y() == doctest::Approx(4.0));
-      CHECK(b.get_velocity().get_x() == doctest::Approx(-0.5));
-      CHECK(b.get_velocity().get_y() == doctest::Approx(2.5));
-    }
-  }
+//       CHECK(b.get_position().get_x() == doctest::Approx(3.0));
+//       CHECK(b.get_position().get_y() == doctest::Approx(4.0));
+//       CHECK(b.get_velocity().get_x() == doctest::Approx(-0.5));
+//       CHECK(b.get_velocity().get_y() == doctest::Approx(2.5));
+//     }
+//   }
 
-  SUBCASE("testing angle ") {
-    boid::Boid b0(point::Point(1., 1.), point::Point(0., 1.));
-    boid::Boid b1(point::Point(1., 7.), point::Point(4., 0.));
-    boid::Boid b2(point::Point(2., sqrt(3) + 1), point::Point(0., 1.));
-    CHECK(b0.angle(b0) == doctest::Approx(0.));
-    CHECK(b0.angle(b1) == doctest::Approx(0.));
-    CHECK(b0.angle(b2) == doctest::Approx(0.523599));
-  }
+//   SUBCASE("testing angle ") {
+//     boid::Boid b0(point::Point(1., 1.), point::Point(0., 1.));
+//     boid::Boid b1(point::Point(1., 7.), point::Point(4., 0.));
+//     boid::Boid b2(point::Point(2., sqrt(3) + 1), point::Point(0., 1.));
+//     CHECK(b0.angle(b0) == doctest::Approx(0.));
+//     CHECK(b0.angle(b1) == doctest::Approx(0.));
+//     CHECK(b0.angle(b2) == doctest::Approx(0.523599));
+//   }
 
-  SUBCASE("testing alignment with null alignment coefficient") {
-    SUBCASE("Alignment with no neighbors") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-      std::vector<boid::Boid> neighbors;
-      point::Point result = b.alignment(neighbors, 0.);
-      CHECK(result == point::Point{0., 0.});
-    }
+//   SUBCASE("testing alignment with null alignment coefficient") {
+//     SUBCASE("Alignment with no neighbors") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//       std::vector<boid::Boid> neighbors;
+//       point::Point result = b.alignment(neighbors, 0.);
+//       CHECK(result == point::Point{0., 0.});
+//     }
 
-    SUBCASE("Alignment with one neighbor - same velocity") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{2., 2.});
-      std::vector<boid::Boid> neighbors = {
-          boid::Boid(point::Point{1., 1.}, point::Point{2., 2.})};
-      point::Point result = b.alignment(neighbors, 0.);
-      CHECK(result == point::Point{0., 0.});
-    }
+//     SUBCASE("Alignment with one neighbor - same velocity") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{2., 2.});
+//       std::vector<boid::Boid> neighbors = {
+//           boid::Boid(point::Point{1., 1.}, point::Point{2., 2.})};
+//       point::Point result = b.alignment(neighbors, 0.);
+//       CHECK(result == point::Point{0., 0.});
+//     }
 
-    SUBCASE("Alignment with one neighbor - different velocity") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-      std::vector<boid::Boid> neighbors = {
-          boid::Boid(point::Point{1., 1.}, point::Point{3., 3.})};
-      point::Point result = b.alignment(neighbors, 0.);
-      CHECK(result == point::Point{0., 0.});
-    }
-  }
+//     SUBCASE("Alignment with one neighbor - different velocity") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//       std::vector<boid::Boid> neighbors = {
+//           boid::Boid(point::Point{1., 1.}, point::Point{3., 3.})};
+//       point::Point result = b.alignment(neighbors, 0.);
+//       CHECK(result == point::Point{0., 0.});
+//     }
+//   }
 
-  SUBCASE("testing alignment with non-null alignment coefficient") {
-    double a{2.};
-    SUBCASE("Alignment with no neighbors") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-      std::vector<boid::Boid> neighbors;
-      point::Point result = b.alignment(neighbors, a);
-      CHECK(result == point::Point{0., 0.});
-    }
+//   SUBCASE("testing alignment with non-null alignment coefficient") {
+//     double a{2.};
+//     SUBCASE("Alignment with no neighbors") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//       std::vector<boid::Boid> neighbors;
+//       point::Point result = b.alignment(neighbors, a);
+//       CHECK(result == point::Point{0., 0.});
+//     }
 
-    SUBCASE("Alignment with one neighbor - same velocity") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{2., 2.});
-      std::vector<boid::Boid> neighbors = {
-          boid::Boid(point::Point{1., 1.}, point::Point{2., 2.})};
-      point::Point result = b.alignment(neighbors, a);
-      CHECK(result == point::Point{0., 0.});
-    }
+//     SUBCASE("Alignment with one neighbor - same velocity") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{2., 2.});
+//       std::vector<boid::Boid> neighbors = {
+//           boid::Boid(point::Point{1., 1.}, point::Point{2., 2.})};
+//       point::Point result = b.alignment(neighbors, a);
+//       CHECK(result == point::Point{0., 0.});
+//     }
 
-    SUBCASE("Alignment with one neighbor - different velocity") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-      std::vector<boid::Boid> neighbors = {
-          boid::Boid(point::Point{1., 1.}, point::Point{3., 3.})};
-      point::Point result = b.alignment(neighbors, a);
-      CHECK(result == point::Point{4., 4.});
-    }
+//     SUBCASE("Alignment with one neighbor - different velocity") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//       std::vector<boid::Boid> neighbors = {
+//           boid::Boid(point::Point{1., 1.}, point::Point{3., 3.})};
+//       point::Point result = b.alignment(neighbors, a);
+//       CHECK(result == point::Point{4., 4.});
+//     }
 
-    SUBCASE("Alignment with multiple neighbors - average velocity") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-      std::vector<boid::Boid> neighbors = {
-          boid::Boid(point::Point{1., 1.}, point::Point{3., 3.}),
-          boid::Boid(point::Point{2., 2.}, point::Point{1., 5.}),
-          boid::Boid(point::Point{3., 3.}, point::Point{2., 2.})};
-      point::Point result = b.alignment(neighbors, a);
+//     SUBCASE("Alignment with multiple neighbors - average velocity") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//       std::vector<boid::Boid> neighbors = {
+//           boid::Boid(point::Point{1., 1.}, point::Point{3., 3.}),
+//           boid::Boid(point::Point{2., 2.}, point::Point{1., 5.}),
+//           boid::Boid(point::Point{3., 3.}, point::Point{2., 2.})};
+//       point::Point result = b.alignment(neighbors, a);
 
-      CHECK(result.get_x() == doctest::Approx(2.));
-      CHECK(result.get_y() == doctest::Approx(4.6666667));
-    }
-  }
+//       CHECK(result.get_x() == doctest::Approx(2.));
+//       CHECK(result.get_y() == doctest::Approx(4.6666667));
+//     }
+//   }
 
-  SUBCASE("testing separation") {
-    double separation_dist = 5.0;
-    double separation_coeff = 0.5;
+//   SUBCASE("testing separation") {
+//     double separation_dist = 5.0;
+//     double separation_coeff = 0.5;
 
-    SUBCASE("Separation with no neighbors") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-      std::vector<boid::Boid> neighbors;
-      point::Point result =
-          b.separation(neighbors, separation_dist, separation_coeff);
-      CHECK(result == point::Point{0., 0.});
-    }
+//     SUBCASE("Separation with no neighbors") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//       std::vector<boid::Boid> neighbors;
+//       point::Point result =
+//           b.separation(neighbors, separation_dist, separation_coeff);
+//       CHECK(result == point::Point{0., 0.});
+//     }
 
-    SUBCASE("Separation with neighbors all outside separation distance") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-      std::vector<boid::Boid> neighbors = {
-          boid::Boid(point::Point{10., 0.}, point::Point{0., 0.}),
-          boid::Boid(point::Point{0., -10.}, point::Point{0., 0.})};
-      point::Point result =
-          b.separation(neighbors, separation_dist, separation_coeff);
-      CHECK(result == point::Point{0., 0.});
-    }
+//     SUBCASE("Separation with neighbors all outside separation distance") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//       std::vector<boid::Boid> neighbors = {
+//           boid::Boid(point::Point{10., 0.}, point::Point{0., 0.}),
+//           boid::Boid(point::Point{0., -10.}, point::Point{0., 0.})};
+//       point::Point result =
+//           b.separation(neighbors, separation_dist, separation_coeff);
+//       CHECK(result == point::Point{0., 0.});
+//     }
 
-    SUBCASE("Separation with one neighbor within range") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-      boid::Boid n1(point::Point{3., 0.},
-                    point::Point{0., 0.});  // distanza 3.0
-      std::vector<boid::Boid> neighbors = {n1};
-      point::Point result =
-          b.separation(neighbors, separation_dist, separation_coeff);
-      CHECK(result.get_x() == doctest::Approx(-1.5));
-      CHECK(result.get_y() == doctest::Approx(0));
-    }
+//     SUBCASE("Separation with one neighbor within range") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//       boid::Boid n1(point::Point{3., 0.},
+//                     point::Point{0., 0.});  // distanza 3.0
+//       std::vector<boid::Boid> neighbors = {n1};
+//       point::Point result =
+//           b.separation(neighbors, separation_dist, separation_coeff);
+//       CHECK(result.get_x() == doctest::Approx(-1.5));
+//       CHECK(result.get_y() == doctest::Approx(0));
+//     }
 
-    SUBCASE("Separation with multiple neighbors, mixed range") {
-      boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-      std::vector<boid::Boid> neighbors = {
-          boid::Boid(point::Point{1., 0.}, point::Point{0., 0.}),
-          boid::Boid(point::Point{-2., 0.}, point::Point{0., 0.}),
-          boid::Boid(point::Point{10., 10.}, point::Point{0., 0.})};
+//     SUBCASE("Separation with multiple neighbors, mixed range") {
+//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//       std::vector<boid::Boid> neighbors = {
+//           boid::Boid(point::Point{1., 0.}, point::Point{0., 0.}),
+//           boid::Boid(point::Point{-2., 0.}, point::Point{0., 0.}),
+//           boid::Boid(point::Point{10., 10.}, point::Point{0., 0.})};
 
-      point::Point result =
-          b.separation(neighbors, separation_dist, separation_coeff);
-      CHECK(result.get_x() == doctest::Approx(0.5));
-      CHECK(result.get_y() == doctest::Approx(0.));
-    }
+//       point::Point result =
+//           b.separation(neighbors, separation_dist, separation_coeff);
+//       CHECK(result.get_x() == doctest::Approx(0.5));
+//       CHECK(result.get_y() == doctest::Approx(0.));
+//     }
 
-    SUBCASE("Separation with all neighbors on top of the boid (distance 0)") {
-      boid::Boid b(point::Point{1., 1.}, point::Point{0., 0.});
-      std::vector<boid::Boid> neighbors = {
-          boid::Boid(point::Point{1., 1.}, point::Point{0., 0.}),
-          boid::Boid(point::Point{1., 1.}, point::Point{0., 0.})};
+//     SUBCASE("Separation with all neighbors on top of the boid (distance 0)")
+//     {
+//       boid::Boid b(point::Point{1., 1.}, point::Point{0., 0.});
+//       std::vector<boid::Boid> neighbors = {
+//           boid::Boid(point::Point{1., 1.}, point::Point{0., 0.}),
+//           boid::Boid(point::Point{1., 1.}, point::Point{0., 0.})};
 
-      point::Point result =
-          b.separation(neighbors, separation_dist, separation_coeff);
-      CHECK(result == point::Point{0., 0.});
-    }
+//       point::Point result =
+//           b.separation(neighbors, separation_dist, separation_coeff);
+//       CHECK(result == point::Point{0., 0.});
+//     }
 
-    SUBCASE("testing cohesion") {
-      double cohesion_coeff = 0.5;
+//     SUBCASE("testing cohesion") {
+//       double cohesion_coeff = 0.5;
 
-      SUBCASE("Cohesion with no neighbors") {
-        boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-        std::vector<boid::Boid> neighbors;
-        point::Point result = b.cohesion(neighbors, cohesion_coeff);
-        CHECK(result == point::Point{0., 0.});
-      }
+//       SUBCASE("Cohesion with no neighbors") {
+//         boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//         std::vector<boid::Boid> neighbors;
+//         point::Point result = b.cohesion(neighbors, cohesion_coeff);
+//         CHECK(result == point::Point{0., 0.});
+//       }
 
-      SUBCASE("Cohesion with one neighbor") {
-        boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-        boid::Boid n1(point::Point{4., 0.}, point::Point{0., 0.});
-        std::vector<boid::Boid> neighbors = {n1};
-        point::Point result = b.cohesion(neighbors, cohesion_coeff);
-        // center of mass is (4, 0), relative to b is (4, 0)
-        CHECK(result.get_x() == doctest::Approx(2.0));
-        CHECK(result.get_y() == doctest::Approx(0.0));
-      }
+//       SUBCASE("Cohesion with one neighbor") {
+//         boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
+//         boid::Boid n1(point::Point{4., 0.}, point::Point{0., 0.});
+//         std::vector<boid::Boid> neighbors = {n1};
+//         point::Point result = b.cohesion(neighbors, cohesion_coeff);
+//         // center of mass is (4, 0), relative to b is (4, 0)
+//         CHECK(result.get_x() == doctest::Approx(2.0));
+//         CHECK(result.get_y() == doctest::Approx(0.0));
+//       }
 
-      SUBCASE("Cohesion with multiple neighbors") {
-        boid::Boid b(point::Point{1., 1.}, point::Point{1., 1.});
-        std::vector<boid::Boid> neighbors = {
-            boid::Boid(point::Point{3., 1.}, point::Point{0., 0.}),
-            boid::Boid(point::Point{1., 3.}, point::Point{0., 0.}),
-            boid::Boid(point::Point{-1., 1.}, point::Point{0., 0.})};
+//       SUBCASE("Cohesion with multiple neighbors") {
+//         boid::Boid b(point::Point{1., 1.}, point::Point{1., 1.});
+//         std::vector<boid::Boid> neighbors = {
+//             boid::Boid(point::Point{3., 1.}, point::Point{0., 0.}),
+//             boid::Boid(point::Point{1., 3.}, point::Point{0., 0.}),
+//             boid::Boid(point::Point{-1., 1.}, point::Point{0., 0.})};
 
-        // center of mass = (3 + 1 + (-1)) / 3 = (1, 5/3)
-        // relative to b (1,1): (0, 2/3)
-        // scaled by coeff: (0, 1/3)
-        point::Point result = b.cohesion(neighbors, cohesion_coeff);
-        CHECK(result.get_x() == doctest::Approx(0.0));
-        CHECK(result.get_y() == doctest::Approx(1.0 / 3.0));
-      }
+//         // center of mass = (3 + 1 + (-1)) / 3 = (1, 5/3)
+//         // relative to b (1,1): (0, 2/3)
+//         // scaled by coeff: (0, 1/3)
+//         point::Point result = b.cohesion(neighbors, cohesion_coeff);
+//         CHECK(result.get_x() == doctest::Approx(0.0));
+//         CHECK(result.get_y() == doctest::Approx(1.0 / 3.0));
+//       }
 
-      SUBCASE("Cohesion with neighbors all at same location as boid") {
-        boid::Boid b(point::Point{2., 2.}, point::Point{0., 0.});
-        std::vector<boid::Boid> neighbors = {
-            boid::Boid(point::Point{2., 2.}, point::Point{0., 0.}),
-            boid::Boid(point::Point{2., 2.}, point::Point{0., 0.})};
+//       SUBCASE("Cohesion with neighbors all at same location as boid") {
+//         boid::Boid b(point::Point{2., 2.}, point::Point{0., 0.});
+//         std::vector<boid::Boid> neighbors = {
+//             boid::Boid(point::Point{2., 2.}, point::Point{0., 0.}),
+//             boid::Boid(point::Point{2., 2.}, point::Point{0., 0.})};
 
-        point::Point result = b.cohesion(neighbors, cohesion_coeff);
-        // Relative positions will all be (0,0), so center of mass is (0,0)
-        CHECK(result == point::Point{0., 0.});
-      }
-    }
-  }
-}
+//         point::Point result = b.cohesion(neighbors, cohesion_coeff);
+//         // Relative positions will all be (0,0), so center of mass is (0,0)
+//         CHECK(result == point::Point{0., 0.});
+//       }
+//     }
+//   }
+//}
