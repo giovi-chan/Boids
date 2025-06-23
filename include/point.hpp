@@ -3,16 +3,17 @@
 
 namespace point {
 class Point {
+ private:
   double x_;
   double y_;
 
   // methods
  public:
-  Point(double x = 0., double y = 0.);   //dichiarazione del costruttore, adesso il compilatore sa che esiste un costruttore pubblico che accetta due double e che presenta 0 come valori di default se uno o entrambi gli argomenti mancano
+  Point(double x = 0., double y = 0.);
 
-  double get_x() const;         // getters
+  double get_x() const;
   double get_y() const;
-  void set_x(double);       //setters
+  void set_x(double);
   void set_y(double);
 
   double distance() const;
@@ -25,7 +26,7 @@ Point operator-(Point const&, Point const&);
 Point operator*(Point const&, double);
 Point operator/(Point const&, double);
 bool operator==(Point const&, Point const&);
-Point relative_position(const Point& , const Point& );
+Point relative_position(const Point&, const Point&);
 double toroidal_distance(Point const&);
 double toroidal_distance(Point const&, Point const&);
 

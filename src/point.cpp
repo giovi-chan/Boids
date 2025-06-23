@@ -46,7 +46,7 @@ Point operator/(Point const& p, double c) {
 }
 
 bool operator==(Point const& p, Point const& q) {
-return (p.get_x()==q.get_x() && p.get_y()==q.get_y());
+  return (p.get_x() == q.get_x() && p.get_y() == q.get_y());
 }
 
 // free function relative position: dati due punti sulla finestra, calcola il
@@ -80,7 +80,7 @@ double toroidal_distance(
     Point const& p) {  // distance from origin of a point in the window
   assert(p.get_x() >= 0 && p.get_x() <= constants::window_width);
   assert(p.get_y() >= 0 && p.get_y() <= constants::window_height);
-  return relative_position({0.,0.}, p).distance();
+  return relative_position({0., 0.}, p).distance();
 }
 
 double toroidal_distance(
@@ -89,7 +89,7 @@ double toroidal_distance(
   assert(p.get_y() >= 0 && p.get_y() <= constants::window_height);
   assert(q.get_x() >= 0 && q.get_x() <= constants::window_width);
   assert(q.get_y() >= 0 && q.get_y() <= constants::window_height);
-  return relative_position(p,q).distance();
+  return relative_position(p, q).distance();
 }
 
 }  // namespace point
