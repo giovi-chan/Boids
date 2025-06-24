@@ -71,12 +71,12 @@ class Flock {
 
   void generateBoids();  // generates boids with random positions and velocities
 
-  std::vector<std::shared_ptr<boid::Boid>> findNearPrey(size_t i,
-                                                        bool is_prey) const;
+  std::vector<std::shared_ptr<boid::Boid>> nearPrey(const std::size_t i,
+                                                    const bool is_prey) const;
   // return a vector containing pointers to prey near the current, i-th boid.
 
-  std::vector<std::shared_ptr<boid::Boid>> findNearPredators(
-      size_t i, bool is_prey) const;
+  std::vector<std::shared_ptr<boid::Boid>> nearPredators(
+      const std::size_t i, const bool is_prey) const;
 
   // return a vector containing pointers to predators near the current, i-th
   // boid.
@@ -85,7 +85,7 @@ class Flock {
                                          bool is_prey)
       const;  // evaluates the new position and velocity of a bird in the flock.
 
-  void evolve(sf::VertexArray& triangles) const;
+  void updateFlock(sf::VertexArray& triangles) const;
 
   // evaluates the relevant statistical quantities
   statistics::Statistics statistics() const;

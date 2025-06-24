@@ -4,6 +4,7 @@
 #include <array>
 #include <cassert>
 #include <chrono>
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <numeric>
@@ -139,97 +140,70 @@ void Flock::generateBoids() {
   }
 }
 
-std::vector<std::shared_ptr<boid::Boid>> Flock::findNearPrey(
-    std::size_t i, bool is_prey) const {
+std::vector<std::shared_ptr<boid::Boid>> Flock::nearPrey(
+    const std::size_t i, const bool is_prey) const {
   std::vector<std::shared_ptr<boid::Boid>> near_prey;
 
-  if (is_prey) {
-    double beta = prey_flock_[i]->getVelocity().angle();
-    point::Point target_pos = prey_flock_[i]->getPosition();
+  const point::Point my_position = is_prey ? prey_flock_[i]->getPosition()
+                                           : predator_flock_[i]->getPosition();
 
-    for (std::size_t j = 0; j < n_prey_; ++j) {
-      if (i == j) continue;
-      const auto& other_pos = prey_flock_[j]->getPosition();
-      double distance = target_pos.distance(other_pos);
-      if (distance < boids_dis_) {
-        double alpha = (other_pos - target_pos).angle();
-        double diff_angle = std::fmod(std::abs(alpha - beta), 2 * M_PI);
-        if (diff_angle < prey_sight_angle_ ||
-            diff_angle > 2 * M_PI - prey_sight_angle_) {
-          near_prey.push_back(prey_flock_[j]);
-        }
-      }
-    }
-  } else {
-    double beta = predator_flock_[i]->getVelocity().angle();
-    point::Point target_pos = predator_flock_[i]->getPosition();
+  for (std::size_t j = 0; j < n_prey_; ++j) {
+    if (is_prey && i == j) continue;  // Evita autoconfronto
 
-    for (size_t j = 0; j < n_prey_; ++j) {
-      const auto& other_pos = prey_flock_[j]->getPosition();
-      double distance = target_pos.distance(other_pos);
-      if (distance < boids_dis_) {
-        double alpha = (other_pos - target_pos).angle();
-        double diff_angle = std::fmod(std::abs(alpha - beta), 2 * M_PI);
-        if (diff_angle < predator_sight_angle_ ||
-            diff_angle > 2 * M_PI - predator_sight_angle_) {
-          near_prey.push_back(prey_flock_[j]);
-        }
+    const auto& other = prey_flock_[j];
+    const point::Point other_position = other->getPosition();
+
+    if (toroidal_distance(my_position, other_position) < boids_dis_) {
+      double alpha = is_prey ? prey_flock_[i]->angle(other)
+                             : predator_flock_[i]->angle(other);
+
+      if (std::abs(alpha) <
+          (is_prey ? prey_sight_angle_ : predator_sight_angle_)) {
+        near_prey.emplace_back(other);
       }
     }
   }
+
   return near_prey;
 }
 
-std::vector<std::shared_ptr<boid::Boid>> Flock::findNearPredators(
-    size_t i, bool is_prey) const {
+std::vector<std::shared_ptr<boid::Boid>> Flock::nearPredators(
+    const std::size_t i, const bool is_prey) const {
   std::vector<std::shared_ptr<boid::Boid>> near_predators;
 
-  if (is_prey) {
-    double beta = prey_flock_[i]->getVelocity().angle();
-    point::Point target_pos = prey_flock_[i]->getPosition();
+  const point::Point my_position = is_prey ? prey_flock_[i]->getPosition()
+                                           : predator_flock_[i]->getPosition();
 
-    for (size_t j = 0; j < n_predators_; ++j) {
-      const auto& other_pos = predator_flock_[j]->getPosition();
-      double distance = target_pos.distance(other_pos);
-      if (distance < boids_dis_) {
-        double alpha = (other_pos - target_pos).angle();
-        double diff_angle = std::fmod(std::abs(alpha - beta), 2 * M_PI);
-        if (diff_angle < prey_sight_angle_ ||
-            diff_angle > 2 * M_PI - prey_sight_angle_) {
-          near_predators.push_back(predator_flock_[j]);
-        }
-      }
-    }
-  } else {
-    double beta = predator_flock_[i]->getVelocity().angle();
-    point::Point target_pos = predator_flock_[i]->getPosition();
+  for (std::size_t j = 0; j < n_predators_; ++j) {
+    if (!is_prey && i == j) continue;
 
-    for (size_t j = 0; j < n_predators_; ++j) {
-      if (i == j) continue;
-      const auto& other_pos = predator_flock_[j]->getPosition();
-      double distance = target_pos.distance(other_pos);
-      if (distance < boids_dis_) {
-        double alpha = (other_pos - target_pos).angle();
-        double diff_angle = std::fmod(std::abs(alpha - beta), 2 * M_PI);
-        if (diff_angle < predator_sight_angle_ ||
-            diff_angle > 2 * M_PI - predator_sight_angle_) {
-          near_predators.push_back(predator_flock_[j]);
-        }
+    const auto& other = predator_flock_[j];
+    const point::Point other_position = other->getPosition();
+
+    if (toroidal_distance(my_position, other_position) < boids_dis_) {
+      double alpha = is_prey ? prey_flock_[i]->angle(other)
+                             : predator_flock_[i]->angle(other);
+
+      if (std::abs(alpha) <
+          (is_prey ? prey_sight_angle_ : predator_sight_angle_)) {
+        near_predators.emplace_back(other);
       }
     }
   }
+
   return near_predators;
 }
 
-std::array<point::Point, 2> Flock::updateBoid(sf::VertexArray& triangles,
-                                              size_t i, bool is_prey) const {
+std::pair<point::Point, point::Point> Flock::boidUpdate(std::size_t i,
+                                                        bool is_prey) const {
+  point::Point p, v;
+
   if (is_prey) {
-    point::Point p = prey_flock_[i]->getPosition();
+    p = prey_flock_[i]->getPosition();
+    v = prey_flock_[i]->getVelocity();
 
     const auto near_prey = findNearPrey(i, true);
     const auto near_predators = findNearPredators(i, true);
-
-    point::Point v = prey_flock_[i]->border(boids_dis_, 0.05);
 
     if (!near_predators.empty()) {
       v += prey_flock_[i]->repel(flight_params_.repulsion, near_predators);
@@ -243,20 +217,12 @@ std::array<point::Point, 2> Flock::updateBoid(sf::VertexArray& triangles,
 
     prey_flock_[i]->boost(speed_limits_.prey_min, v);
     prey_flock_[i]->friction(speed_limits_.prey_max, v);
-
-    double theta = v.angle();
-    p += graphic_par::dt * v;
-
-    triangles::rotateTriangle(p, triangles, theta, i, true,
-                              n_prey_ + n_predators_);
-    return {p, v};
   } else {
-    point::Point p = predator_flock_[i]->getPosition();
+    p = predator_flock_[i]->getPosition();
+    v = predator_flock_[i]->border(boids_dis_, 0.05);
 
     const auto near_prey = findNearPrey(i, false);
     const auto near_predators = findNearPredators(i, false);
-
-    point::Point v = predator_flock_[i]->border(boids_dis_, 0.05);
 
     if (!near_predators.empty()) {
       v += predator_flock_[i]->separation(flight_params_.separation,
@@ -268,17 +234,13 @@ std::array<point::Point, 2> Flock::updateBoid(sf::VertexArray& triangles,
 
     predator_flock_[i]->boost(speed_limits_.predator_min, v);
     predator_flock_[i]->friction(speed_limits_.predator_max, v);
-
-    double theta = v.angle();
-    p += graphic_par::dt * v;
-
-    triangles::rotateTriangle(p, triangles, theta, i, false,
-                              n_prey_ + n_predators_);
-    return {p, v};
   }
+
+  p += graphic_par::dt * v;
+  return {p, v};
 }
 
-void Flock::evolve(sf::VertexArray& triangles) const {
+void Flock::updateFlock(sf::VertexArray& triangles) const {
   std::vector<point::Point> prey_positions;
   std::vector<point::Point> prey_velocities;
   prey_positions.reserve(n_prey_);

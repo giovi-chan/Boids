@@ -28,6 +28,8 @@ class Boid {
                           const std::vector<std::shared_ptr<Boid>> &near) const;
 };
 
+virtual void normalized(double, point::Point &) = 0;
+
 // ---------------------------
 
 class Prey final : public Boid {
@@ -41,7 +43,7 @@ class Prey final : public Boid {
   point::Point cohesion(
       double c, const std::vector<std::shared_ptr<Boid>> &near_prey) const;
 
-  point::Point repel(
+  point::Point repulsion(
       double r, const std::vector<std::shared_ptr<Boid>> &near_predators) const;
 };
 
