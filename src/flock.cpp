@@ -194,7 +194,7 @@ std::vector<std::shared_ptr<boid::Boid>> Flock::nearPredators(
   return near_predators;
 }
 
-std::pair<point::Point, point::Point> Flock::boidUpdate(std::size_t i,
+std::pair<point::Point, point::Point> Flock::updateBoid(std::size_t i,
                                                         bool is_prey) const {
   point::Point p, v;
 
@@ -240,37 +240,82 @@ std::pair<point::Point, point::Point> Flock::boidUpdate(std::size_t i,
   return {p, v};
 }
 
-void Flock::updateFlock(sf::VertexArray& triangles) const {
-  std::vector<point::Point> prey_positions;
-  std::vector<point::Point> prey_velocities;
-  prey_positions.reserve(n_prey_);
-  prey_velocities.reserve(n_prey_);
+void Flock::updateFlock() const {
+  std::vector<point::Point> prey_pos;
+  std::vector<point::Point> prey_vel;
 
-  std::vector<point::Point> predator_positions;
-  std::vector<point::Point> predator_velocities;
-  predator_positions.reserve(n_predators_);
-  predator_velocities.reserve(n_predators_);
-
-  for (size_t i = 0; i < n_prey_; ++i) {
-    auto [pos, vel] = updateBoid(triangles, i, true);
-    prey_positions.push_back(pos);
-    prey_velocities.push_back(vel);
+  for (size_t i = 0; i < n_boids_; ++i) {
+    // Evaluates new positions and velocities for each bird::Boid
+    std::pair<point::Point, point::Point> prey = updateBoid(i, true);
+    prey_pos.push_back(prey[0]);
+    prey_vel.push_back(prey[1]);
   }
 
-  for (size_t i = 0; i < n_predators_; ++i) {
-    auto [pos, vel] = updateBoid(triangles, i, false);
-    predator_positions.push_back(pos);
-    predator_velocities.push_back(vel);
+  if (n_predators_ > 0) {
+    std::vector<point::Point> predator_pos;
+    std::vector<point::Point> predator_vel;
+
+    for (std::size_t i = 0; i < n_predators_; ++i) {
+      std::array<point::Point, 2> predator = updateBoid(i, false);
+      predator_pos.push_back(predator[0]);
+      predator_vel.push_back(predator[1]);
+    }
+
+    for (std::size_t i = 0; i < n_predators_; ++i) {
+      predator_flock_[i]->setBoid(predator_pos[i], predator_vel[i]);
+    }
   }
 
-  for (size_t i = 0; i < n_prey_; ++i) {
-    prey_flock_[i]->setPosition(prey_positions[i]);
-    prey_flock_[i]->setVelocity(prey_velocities[i]);
-  }
-  for (size_t i = 0; i < n_predators_; ++i) {
-    predator_flock_[i]->setPosition(predator_positions[i]);
-    predator_flock_[i]->setVelocity(predator_velocities[i]);
+  for (std::size_t i = 0; i < n_prey_; ++i) {
+    prey_flock_[i]->setBoid(prey_pos[i], prey_vel[i]);
   }
 }
 
+statistics::Statistics Flock::statistics() const {
+  double meanBoids_dist{0.};
+  double meanBoids_dist2{0.};
+  double dev_dist{0.};
+  const int nBoids{static_cast<int>(n_boids_)};
+
+  if (nBoids > 1) {
+    for (auto it = b_flock_.begin(); it != b_flock_.begin() + nBoids; ++it) {
+      std::array<double, 2> sum = std::accumulate(
+          it, b_flock_.begin() + nBoids, std::array<double, 2>{0., 0.},
+          [&it](std::array<double, 2>& acc,
+                const std::shared_ptr<bird::Bird>& bird) {
+            acc[0] += (bird->getPosition().distance((*it)->getPosition()));
+            acc[1] += bird->getPosition().distance((*it)->getPosition()) *
+                      bird->getPosition().distance((*it)->getPosition());
+            return acc;
+          });
+      meanBoids_dist += sum[0];
+      meanBoids_dist2 += sum[1];
+    }
+    const double denominator{nBoids * (nBoids - 1) / 2.};
+
+    meanBoids_dist /= denominator;
+    meanBoids_dist2 /= denominator;
+    dev_dist = std::sqrt(meanBoids_dist2 - meanBoids_dist * meanBoids_dist);
+  }
+
+  double meanBoids_speed{0.};
+  double meanBoids_speed2{0.};
+
+  const std::array<double, 2> sum = std::accumulate(
+      b_flock_.begin(), b_flock_.begin() + nBoids,
+      std::array<double, 2>{0., 0.},
+      [](std::array<double, 2>& acc, const std::shared_ptr<bird::Bird>& bird) {
+        acc[0] += bird->getVelocity().module();
+        acc[1] += bird->getVelocity().module() * bird->getVelocity().module();
+        return acc;
+      });
+  assert(nBoids > 0 && "Flock must contain at least one element");
+  meanBoids_speed = sum[0] / nBoids;
+  meanBoids_speed2 = sum[1] / nBoids;
+
+  const double dev_speed =
+      std::sqrt(meanBoids_speed2 - meanBoids_speed * meanBoids_speed);
+
+  return {meanBoids_dist, dev_dist, meanBoids_speed, dev_speed};
+}
 }  // namespace flock

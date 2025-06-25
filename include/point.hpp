@@ -13,11 +13,12 @@ class Point {
 
   double getX() const;
   double getY() const;
-  void setX(double);
-  void setY(double);
+  // void setX(double);
+  // void setY(double);   forse non sono mai usate
 
   double distance() const;
   double distance(Point const&) const;
+  Point& operator+=(Point const&);
 };
 
 // free functions

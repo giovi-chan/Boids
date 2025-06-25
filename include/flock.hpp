@@ -39,13 +39,12 @@ class Flock {
   static constexpr double prey_sight_angle_ = 2. / 3 * M_PI;
   static constexpr double predator_sight_angle_ = 0.5 * M_PI;
 
-  FlightParameters flight_params_;
+  FlightParameters flight_parameterss_;
   SpeedLimits speed_limits_;
 
-  static constexpr double boids_dis_ = 75.;  // radius for near boids
-  static constexpr double prey_sep_ = 20.;   // separation radius for prey
-  static constexpr double predator_sep_ =
-      boids_dis_ * 0.5;  // separation radius for predators
+  static constexpr double d = 75.;                // radius for near boids
+  static constexpr double prey_ds_ = 20.;         // separation radius for prey
+  static constexpr double predator_ds = d * 0.5;  // and for predators
 
  public:
   Flock(std::size_t nPrey, std::size_t nPredators);
@@ -81,11 +80,11 @@ class Flock {
   // return a vector containing pointers to predators near the current, i-th
   // boid.
 
-  std::array<point::Point, 2> updateBoid(sf::VertexArray& triangles, size_t i,
+  std::array<point::Point, 2> updateBoid(std::size_t i,
                                          bool is_prey)
       const;  // evaluates the new position and velocity of a bird in the flock.
 
-  void updateFlock(sf::VertexArray& triangles) const;
+  void updateFlock() const;
 
   // evaluates the relevant statistical quantities
   statistics::Statistics statistics() const;

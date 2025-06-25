@@ -1,9 +1,9 @@
 #include "../include/boid.hpp"
 
-#include <algorithm>
+#include <algorithm>  // for std::clamp
 #include <cassert>
-#include <cmath>
-#include <numeric>  // per std::accumulate
+#include <cmath>    // for std::acos
+#include <numeric>  // for std::accumulate
 
 #include "../include/constants.hpp"
 
@@ -17,7 +17,7 @@ Boid::Boid(point::Point const& position, point::Point const& velocity)
 point::Point Boid::getPosition() const { return position_; }
 point::Point Boid::getVelocity() const { return velocity_; }
 
-void Boid::setBoid(point::Point position, point::Point velocity) {
+void Boid::setBoid(const point::Point& position, const point::Point& velocity) {
   position_ = position;
   velocity_ = velocity;
 }
@@ -32,21 +32,22 @@ double Boid::angle(const Boid& other) const {
   double cosine =
       (velocity_.getX() * delta.getX() + velocity_.getY() * delta.getY()) /
       (vel_mag * delta_mag);
-  cosine = std::clamp(cosine, -1.0, 1.0);
+  cosine = std::clamp(cosine, -1.0, 1.0);  // to check
 
-  return std::acos(cosine);
+  return std::acos(cosine);  // given a number between -1 an +1, returns the
+                             // angle between -pi and +pi
 }
 
 point::Point Boid::separation(
-    double s, double d, const std::vector<std::shared_ptr<Boid>>& near) const {
+    const double s, const double ds,
+    const std::vector<std::shared_ptr<Boid>>& near) const {
   assert(s >= 0 && s <= 1);
-  assert(d >= 0);
+  assert(ds >= 0);
 
-  point::Point sum = std::accumulate(
+  const point::Point sum = std::accumulate(
       near.begin(), near.end(), point::Point(0., 0.),
-      [this, d](point::Point accumulate, const std::shared_ptr<Boid>& boid) {
-        // Assumendo che toroidal_distance sia una funzione globale accessibile
-        if (toroidalDistance(position_, boid->getPosition()) < d) {
+      [this, ds](point::Point accumulate, const std::shared_ptr<Boid>& boid) {
+        if (point::toroidalDistance(position_, boid->getPosition()) < ds) {
           accumulate += point::relativePosition(position_, boid->getPosition());
         }
         return accumulate;
@@ -61,54 +62,58 @@ Prey::Prey(point::Point const& position, point::Point const& velocity)
     : Boid(position, velocity) {}
 
 point::Point Prey::alignment(
-    double a, const std::vector<std::shared_ptr<Boid>>& near_prey) const {
+    const double a, const std::vector<std::shared_ptr<Boid>>& near_prey) const {
   assert(a >= 0 && a <= 1);
   if (near_prey.empty()) return point::Point(0., 0.);
 
-  point::Point sum = std::accumulate(
+  const point::Point sum = std::accumulate(
       near_prey.begin(), near_prey.end(), point::Point(0., 0.),
-      [](point::Point accumulate, const std::shared_ptr<Boid>& boid) {
+      [](const point::Point& accumulate, const std::shared_ptr<Boid>& boid) {
         return accumulate + boid->getVelocity();
       });
+
   return a * (sum / static_cast<double>(near_prey.size()) - velocity_);
 }
 
 point::Point Prey::cohesion(
-    double c, const std::vector<std::shared_ptr<Boid>>& near_prey) const {
+    const double c, const std::vector<std::shared_ptr<Boid>>& near_prey) const {
   assert(c >= 0 && c <= 1);
   if (near_prey.empty()) return point::Point(0., 0.);
 
-  point::Point sum = std::accumulate(
-      near_prey.begin(), near_prey.end(), point::Point(0., 0.),
-      [this](point::Point accumulate, const std::shared_ptr<Boid>& boid) {
-        return accumulate +
-               point::relativePosition(position_, boid->getPosition());
-      });
+  const point::Point sum =
+      std::accumulate(near_prey.begin(), near_prey.end(), point::Point(0., 0.),
+                      [this](const point::Point& accumulate,
+                             const std::shared_ptr<Boid>& boid) {
+                        return accumulate + point::relativePosition(
+                                                position_, boid->getPosition());
+                      });
   return c * (sum / static_cast<double>(near_prey.size()));
 }
 
 point::Point Prey::repulsion(
-    double r, const std::vector<std::shared_ptr<Boid>>& near_predators) const {
+    const double r,
+    const std::vector<std::shared_ptr<Boid>>& near_predators) const {
   assert(r >= 0);
   if (near_predators.empty()) return point::Point(0., 0.);
 
-  point::Point sum = std::accumulate(
+  const point::Point sum = std::accumulate(
       near_predators.begin(), near_predators.end(), point::Point(0., 0.),
-      [this](point::Point accumulate, const std::shared_ptr<Boid>& boid) {
+      [this](const point::Point& accumulate,
+             const std::shared_ptr<Boid>& boid) {
         return accumulate +
                point::relativePosition(position_, boid->getPosition());
       });
   return -r * sum;
 }
 
-void Prey::normalized(const double min_speed, const double max_speed,
-                      point::Point& velocity) {
-  assert(velocity.module() != 0);
+void Prey::clamp(const double min_speed, const double max_speed,
+                 point::Point& velocity) {
+  assert(velocity.distance() != 0);
   assert(min_speed >= 0);
   assert(max_speed > 0);
   assert(min_speed <= max_speed);
 
-  double speed = velocity.module();
+  double speed = velocity.distance();
 
   if (speed > max_speed) {
     velocity = max_speed * (velocity / speed);
@@ -125,11 +130,12 @@ Predator::Predator(point::Point const& position, point::Point const& velocity)
     : Boid(position, velocity) {}
 
 point::Point Predator::chase(
-    double ch, const std::vector<std::shared_ptr<Boid>>& near_prey) const {
+    const double ch,
+    const std::vector<std::shared_ptr<Boid>>& near_prey) const {
   assert(ch >= 0 && ch <= 1);
   if (near_prey.empty()) return point::Point(0., 0.);
 
-  point::Point sum = std::accumulate(
+  const point::Point sum = std::accumulate(
       near_prey.begin(), near_prey.end(), point::Point(0., 0.),
       [this](point::Point accumulate, const std::shared_ptr<Boid>& boid) {
         return accumulate +
@@ -139,14 +145,14 @@ point::Point Predator::chase(
   return ch * (sum / static_cast<double>(near_prey.size()));
 }
 
-void Predator::normalized(const double min_speed, const double max_speed,
-                          point::Point& velocity) {
-  assert(velocity.module() != 0);
+void Predator::clamp(const double min_speed, const double max_speed,
+                     point::Point& velocity) {
+  assert(velocity.distance() != 0);
   assert(min_speed >= 0);
   assert(max_speed > 0);
   assert(min_speed <= max_speed);
 
-  double speed = velocity.module();
+  double speed = velocity.distance();
 
   if (speed > max_speed) {
     velocity = max_speed * (velocity / speed);

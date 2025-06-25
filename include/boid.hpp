@@ -1,7 +1,7 @@
 #ifndef BOID_HPP
 #define BOID_HPP
 
-#include <memory>
+#include <memory>  // for std::shared_ptr
 #include <vector>
 
 #include "point.hpp"
@@ -19,16 +19,17 @@ class Boid {
 
   virtual ~Boid() = default;
 
-  point::Point get_position() const;
-  point::Point get_velocity() const;
-  void setBoid(point::Point position, point::Point velocity);
-  double angle(const Boid &other) const;
+  point::Point getPosition() const;
+  point::Point getVelocity() const;
+  void setBoid(point::Point const &position, point::Point const &velocity);
+  double angle(Boid const &other) const;
 
   point::Point separation(double s, double ds,
                           const std::vector<std::shared_ptr<Boid>> &near) const;
-};
 
-virtual void normalized(double, point::Point &) = 0;
+  virtual void clamp(const double min_speed, const double max_speed,
+                     point::Point &velocity) = 0;
+};
 
 // ---------------------------
 
@@ -45,6 +46,9 @@ class Prey final : public Boid {
 
   point::Point repulsion(
       double r, const std::vector<std::shared_ptr<Boid>> &near_predators) const;
+
+  void clamp(const double min_speed, const double max_speed,
+             point::Point &velocity) override;
 };
 
 class Predator final : public Boid {
@@ -54,6 +58,9 @@ class Predator final : public Boid {
 
   point::Point chase(double ch,
                      const std::vector<std::shared_ptr<Boid>> &near_prey) const;
+
+  void clamp(const double min_speed, const double max_speed,
+             point::Point &velocity) override;
 };
 }  // namespace boid
 #endif
