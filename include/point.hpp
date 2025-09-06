@@ -13,8 +13,8 @@ class Point {
 
   double getX() const;
   double getY() const;
-  // void setX(double);
-  // void setY(double);   forse non sono mai usate
+  void setX(double);
+  void setY(double);
 
   double distance() const;
   double distance(Point const&) const;
@@ -28,7 +28,6 @@ Point operator*(Point const&, double);
 Point operator/(Point const&, double);
 bool operator==(Point const&, Point const&);
 Point relativePosition(const Point&, const Point&);
-double toroidalDistance(Point const&);
 double toroidalDistance(Point const&, Point const&);
 
 }  // namespace point

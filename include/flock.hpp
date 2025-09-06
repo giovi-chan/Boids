@@ -1,10 +1,11 @@
 #ifndef FLOCK_HPP
 #define FLOCK_HPP
 
-#include <SFML/Graphics/VertexArray.hpp>
 #include <array>
 #include <cmath>
+#include <iostream>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "boid.hpp"
@@ -39,7 +40,7 @@ class Flock {
   static constexpr double prey_sight_angle_ = 2. / 3 * M_PI;
   static constexpr double predator_sight_angle_ = 0.5 * M_PI;
 
-  FlightParameters flight_parameterss_;
+  FlightParameters flight_parameters_;
   SpeedLimits speed_limits_;
 
   static constexpr double d = 75.;                // radius for near boids
@@ -51,8 +52,7 @@ class Flock {
 
   Flock(const std::vector<std::shared_ptr<boid::Prey>>& prey,
         const std::vector<std::shared_ptr<boid::Predator>>& predators,
-        double preyMaxSpeed, double predatorMaxSpeed, double preyMinSpeed,
-        double predatorMinSpeed);
+        const SpeedLimits& speed_limits_);
 
   std::size_t getPreyNum() const;
   std::size_t getPredatorsNum() const;
@@ -62,31 +62,25 @@ class Flock {
   std::vector<std::shared_ptr<boid::Predator>> getPredatorFlock() const;
 
   FlightParameters getFlightParameters() const;
-  // SpeedLimits getSpeedLimits() const;
+  // SpeedLimits getSpeedLimits() const; non serve
 
   static std::array<double, 3> getDistancesParameters();
 
   void setFlightParameters(std::istream& in, std::ostream& out);
 
-  void generateBoids();  // generates boids with random positions and velocities
+  void generateBoids();
 
   std::vector<std::shared_ptr<boid::Boid>> nearPrey(const std::size_t i,
                                                     const bool is_prey) const;
-  // return a vector containing pointers to prey near the current, i-th boid.
 
   std::vector<std::shared_ptr<boid::Boid>> nearPredators(
       const std::size_t i, const bool is_prey) const;
 
-  // return a vector containing pointers to predators near the current, i-th
-  // boid.
+  std::array<point::Point, 2> updateBoid(std::size_t i, bool is_prey,
+                                         double dt) const;
 
-  std::array<point::Point, 2> updateBoid(std::size_t i,
-                                         bool is_prey)
-      const;  // evaluates the new position and velocity of a bird in the flock.
+  void updateFlock(double dt) const;
 
-  void updateFlock() const;
-
-  // evaluates the relevant statistical quantities
   statistics::Statistics statistics() const;
 };
 

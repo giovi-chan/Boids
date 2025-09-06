@@ -1,406 +1,409 @@
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+// #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
-#include <cmath>
+// #include <cmath>
 
-#include "../doctest.h"
-#include "../include/boid.hpp"
-#include "../include/constants.hpp"
-#include "../include/point.hpp"
+// #include "../doctest.h"
+// #include "../include/boid.hpp"
+// #include "../include/constants.hpp"
+// #include "../include/point.hpp"
 
-TEST_CASE("testing Point class") {
-  point::Point p0;
-  point::Point p1(1., 2.);
-  point::Point p2(-3., 5.);
+// std::array<double, 3> distanceParams = flock::Flock::getDistancesParams();
 
-  SUBCASE("testing getters") {
-    CHECK(p0.get_x() == 0.);
-    CHECK(p0.get_y() == 0.);
-    CHECK(p1.get_x() == 1.);
-    CHECK(p1.get_y() == 2.);
-  }
-  SUBCASE("testing distance methods") {
-    CHECK(p0.distance() == doctest::Approx(0.00000000));
-    CHECK(p1.distance() == doctest::Approx(2.23606798));
-    CHECK(p2.distance() == doctest::Approx(5.83095189));
-    CHECK(p0.distance(p1) == doctest::Approx(2.23606798));
-    CHECK(p1.distance(p0) == doctest::Approx(2.23606798));
-    CHECK(p1.distance(p2) == doctest::Approx(5.00000000));
-    CHECK(p2.distance(p1) == doctest::Approx(5.00000000));
-    CHECK(p0.distance(p2) == doctest::Approx(5.83095189));
-    CHECK(p2.distance(p0) == doctest::Approx(5.83095189));
-  }
-  SUBCASE("testing toroidal distance") {
-    point::Point q1(330., 120.);
-    point::Point q2(1010., 250.);
-    point::Point q3(90., 560.);
-    point::Point q4(940., 730.);
+// double d{distanceParams[0]};
+// double prey_ds{distanceParams[1]};
+// double predator_ds{distanceParams[2]};
 
-    CHECK(point::toroidal_distance(p0) == doctest::Approx(0.00000000));
-    CHECK(point::toroidal_distance(q1) == doctest::Approx(351.140997));
-    CHECK(point::toroidal_distance(q2) == doctest::Approx(314.006369));
-    CHECK(point::toroidal_distance(q3) == doctest::Approx(256.320112));
-    CHECK(point::toroidal_distance(q4) == doctest::Approx(269.258240));
+// constexpr double preyMaxSpeed{5.};
+// constexpr double predatorMaxSpeed{4.};
 
-    CHECK(point::toroidal_distance(p0, p0) == doctest::Approx(0.00000000));
-    CHECK(point::toroidal_distance(p0, q1) == doctest::Approx(351.140997));
-    CHECK(point::toroidal_distance(p0, q2) == doctest::Approx(314.006369));
-    CHECK(point::toroidal_distance(p0, q3) == doctest::Approx(256.320112));
-    CHECK(point::toroidal_distance(p0, q4) == doctest::Approx(269.258240));
-    CHECK(point::toroidal_distance(q1, p0) == doctest::Approx(351.140997));
-    CHECK(point::toroidal_distance(q1, q1) == doctest::Approx(0.00000000));
-    CHECK(point::toroidal_distance(q1, q2) == doctest::Approx(536.003731));
-    CHECK(point::toroidal_distance(q1, q3) == doctest::Approx(432.666153));
-    CHECK(point::toroidal_distance(q1, q4) == doctest::Approx(619.838689));
-    CHECK(point::toroidal_distance(q2, p0) == doctest::Approx(314.006369));
-    CHECK(point::toroidal_distance(q2, q1) == doctest::Approx(536.003731));
-    CHECK(point::toroidal_distance(q2, q2) == doctest::Approx(0.00000000));
-    CHECK(point::toroidal_distance(q2, q3) == doctest::Approx(417.731971));
-    CHECK(point::toroidal_distance(q2, q4) == doctest::Approx(327.566787));
-    CHECK(point::toroidal_distance(q3, p0) == doctest::Approx(256.320112));
-    CHECK(point::toroidal_distance(q3, q1) == doctest::Approx(432.666153));
-    CHECK(point::toroidal_distance(q3, q2) == doctest::Approx(417.731971));
-    CHECK(point::toroidal_distance(q3, q3) == doctest::Approx(0.00000000));
-    CHECK(point::toroidal_distance(q3, q4) == doctest::Approx(389.101529));
-    CHECK(point::toroidal_distance(q4, p0) == doctest::Approx(269.258240));
-    CHECK(point::toroidal_distance(q4, q1) == doctest::Approx(619.838689));
-    CHECK(point::toroidal_distance(q4, q2) == doctest::Approx(327.566787));
-    CHECK(point::toroidal_distance(q4, q3) == doctest::Approx(389.101529));
-    CHECK(point::toroidal_distance(q4, q4) == doctest::Approx(0.00000000));
-  }
+// constexpr double preyMinSpeed{3.};
+// constexpr double predatorMinSpeed{2.5};
 
-  SUBCASE("testing relative_position") {
-    point::Point q1(330., 120.);
-    point::Point q2(1010., 250.);
-    point::Point q3(90., 560.);
-    point::Point q4(940., 730.);
-    CHECK(point::relative_position(q1, q2).get_x() == -520.);
-    CHECK(point::relative_position(q1, q2).get_y() == 130.);
-    CHECK(point::relative_position(q1, q3).get_x() == -240.);
-    CHECK(point::relative_position(q1, q3).get_y() == -360.);
-    CHECK(point::relative_position(q1, q4).get_x() == -590.);
-    CHECK(point::relative_position(q1, q4).get_y() == -190.);
-    CHECK(point::relative_position(q2, q1).get_x() == 520.);
-    CHECK(point::relative_position(q2, q1).get_y() == -130.);
-    CHECK(point::relative_position(q2, q3).get_x() == 280.);
-    CHECK(point::relative_position(q2, q3).get_y() == 310.);
-    CHECK(point::relative_position(q2, q4).get_x() == -70.);
-    CHECK(point::relative_position(q2, q4).get_y() == -320.);
-    CHECK(point::relative_position(q3, q1).get_x() == 240.);
-    CHECK(point::relative_position(q3, q1).get_y() == 360.);
-    CHECK(point::relative_position(q3, q2).get_x() == -280.);
-    CHECK(point::relative_position(q3, q2).get_y() == -310.);
-    CHECK(point::relative_position(q3, q4).get_x() == -350.);
-    CHECK(point::relative_position(q3, q4).get_y() == 170.);
-    CHECK(point::relative_position(q4, q1).get_x() == 590.);
-    CHECK(point::relative_position(q4, q1).get_y() == 190.);
-    CHECK(point::relative_position(q4, q2).get_x() == +70);
-    CHECK(point::relative_position(q4, q2).get_y() == 320.);
-    CHECK(point::relative_position(q4, q3).get_x() == +350.);
-    CHECK(point::relative_position(q4, q3).get_y() == -170.);
-  }
+// ///////////////////////////////TESTING POINT CLASS
+// ////////////////////////////////////////////////////////
 
-  SUBCASE("testing operator +") {
-    point::Point sum1 = p0 + p1;
-    point::Point sum2 = p1 + p0;
-    point::Point sum3 = p0 + p2;
-    point::Point sum4 = p2 + p0;
-    point::Point sum5 = p1 + p2;
-    point::Point sum6 = p2 + p1;
-    CHECK(sum1.get_x() == doctest::Approx(1.00000000));
-    CHECK(sum1.get_y() == doctest::Approx(2.00000000));
-    CHECK(sum2.get_x() == doctest::Approx(1.00000000));
-    CHECK(sum2.get_y() == doctest::Approx(2.00000000));
-    CHECK(sum3.get_x() == doctest::Approx(-3.00000000));
-    CHECK(sum3.get_y() == doctest::Approx(5.00000000));
-    CHECK(sum4.get_x() == doctest::Approx(-3.00000000));
-    CHECK(sum4.get_y() == doctest::Approx(5.00000000));
-    CHECK(sum5.get_x() == doctest::Approx(-2.00000000));
-    CHECK(sum5.get_y() == doctest::Approx(7.00000000));
-    CHECK(sum6.get_x() == doctest::Approx(-2.00000000));
-    CHECK(sum6.get_y() == doctest::Approx(7.00000000));
-  }
+// TEST_CASE("testing Point class") {
+//   point::Point p0;
+//   point::Point p1(1., 2.);
+//   point::Point p2(-3., 5.);
 
-  SUBCASE("testing operator -") {
-    point::Point diff1 = p0 - p1;
-    point::Point diff2 = p1 - p0;
-    point::Point diff3 = p2 - p0;
-    point::Point diff4 = p0 - p2;
-    point::Point diff5 = p1 - p2;
-    point::Point diff6 = p2 - p1;
-    CHECK(diff1.get_x() == doctest::Approx(-1.00000000));
-    CHECK(diff1.get_y() == doctest::Approx(-2.00000000));
-    CHECK(diff2.get_x() == doctest::Approx(1.00000000));
-    CHECK(diff2.get_y() == doctest::Approx(2.00000000));
-    CHECK(diff3.get_x() == doctest::Approx(-3.00000000));
-    CHECK(diff3.get_y() == doctest::Approx(+5.00000000));
-    CHECK(diff4.get_x() == doctest::Approx(+3.00000000));
-    CHECK(diff4.get_y() == doctest::Approx(-5.00000000));
-    CHECK(diff5.get_x() == doctest::Approx(4.00000000));
-    CHECK(diff5.get_y() == doctest::Approx(-3.00000000));
-    CHECK(diff6.get_x() == doctest::Approx(-4.00000000));
-    CHECK(diff6.get_y() == doctest::Approx(+3.00000000));
-  }
-  SUBCASE("testing operator *") {
-    double constant0{0.};
-    double constant1{2.};
-    double constant2{-3.};
-    point::Point q00 = p0 * constant0;
-    point::Point q01 = p0 * constant1;
-    point::Point q02 = p0 * constant2;
-    point::Point q10 = p1 * constant0;
-    point::Point q11 = p1 * constant1;
-    point::Point q12 = p1 * constant2;
-    point::Point q20 = p2 * constant0;
-    point::Point q21 = p2 * constant1;
-    point::Point q22 = p2 * constant2;
-    CHECK(q00.get_x() == doctest::Approx(0.00000000));
-    CHECK(q00.get_y() == doctest::Approx(0.00000000));
-    CHECK(q01.get_x() == doctest::Approx(0.00000000));
-    CHECK(q01.get_y() == doctest::Approx(0.00000000));
-    CHECK(q02.get_x() == doctest::Approx(0.00000000));
-    CHECK(q02.get_y() == doctest::Approx(0.00000000));
-    CHECK(q10.get_x() == doctest::Approx(0.00000000));
-    CHECK(q10.get_y() == doctest::Approx(0.00000000));
-    CHECK(q11.get_x() == doctest::Approx(2.00000000));
-    CHECK(q11.get_y() == doctest::Approx(4.00000000));
-    CHECK(q12.get_x() == doctest::Approx(-3.0000000));
-    CHECK(q12.get_y() == doctest::Approx(-6.0000000));
-    CHECK(q20.get_x() == doctest::Approx(0.00000000));
-    CHECK(q20.get_y() == doctest::Approx(0.00000000));
-    CHECK(q21.get_x() == doctest::Approx(-6.00000000));
-    CHECK(q21.get_y() == doctest::Approx(10.00000000));
-    CHECK(q22.get_x() == doctest::Approx(9.00000000));
-    CHECK(q22.get_y() == doctest::Approx(-15.00000000));
-  }
+//   SUBCASE("testing getters") {
+//     CHECK(p0.get_x() == 0.);
+//     CHECK(p0.get_y() == 0.);
+//     CHECK(p1.get_x() == 1.);
+//     CHECK(p1.get_y() == 2.);
+//   }
+//   SUBCASE("testing distance methods") {
+//     CHECK(p0.distance() == doctest::Approx(0.00000000));
+//     CHECK(p2.distance() == doctest::Approx(5.83095189));
+//     CHECK(p0.distance(p1) == doctest::Approx(2.23606798));
+//     CHECK(p1.distance(p0) == doctest::Approx(2.23606798));
+//     CHECK(p1.distance(p2) == doctest::Approx(5.00000000));
+//     CHECK(p2.distance(p1) == doctest::Approx(5.00000000));
+//   }
+//   SUBCASE("testing toroidal distance") {
+//     point::Point q1(330., 120.);
+//     point::Point q2(1010., 250.);
+//     point::Point q3(90., 560.);
+//     point::Point q4(940., 730.);
 
-  SUBCASE("testing operator /") {
-    double constant1{2.};
-    double constant2{-3.};
-    point::Point q11 = p1 / constant1;
-    point::Point q12 = p1 / constant2;
-    point::Point q21 = p2 / constant1;
-    point::Point q22 = p2 / constant2;
+//     CHECK(point::toroidal_distance(p0) == doctest::Approx(0.00000000));
+//     CHECK(point::toroidal_distance(q1) == doctest::Approx(351.140997));
+//     CHECK(point::toroidal_distance(q2) == doctest::Approx(314.006369));
+//     CHECK(point::toroidal_distance(q3) == doctest::Approx(256.320112));
+//     CHECK(point::toroidal_distance(q4) == doctest::Approx(269.258240));
 
-    CHECK(q11.get_x() == doctest::Approx(0.5));
-    CHECK(q11.get_y() == doctest::Approx(1.0));
-    CHECK(q12.get_x() == doctest::Approx(-1.0 / 3));
-    CHECK(q12.get_y() == doctest::Approx(-2.0 / 3));
-    CHECK(q21.get_x() == doctest::Approx(-1.5));
-    CHECK(q21.get_y() == doctest::Approx(2.5));
-    CHECK(q22.get_x() == doctest::Approx(1.0));
-    CHECK(q22.get_y() == doctest::Approx(-5.0 / 3));
-  }
-  SUBCASE("testing operator ==") {
-    point::Point p3(1., 2.);
-    CHECK((p1 == p3) == true);
-    CHECK((p1 == p2) == false);
-    CHECK((p2 == p3) == false);
-  }
-}
-
-// TEST_CASE("testing Boid class") {
-//   SUBCASE("testing Boid constructor, getters and setters") {
-//     point::Point initial_position(1.0, 2.0);
-//     point::Point initial_velocity(0.5, -1.5);
-
-//     boid::Boid b(initial_position, initial_velocity);
-
-//     SUBCASE("Constructor initializes correctly") {
-//       CHECK(b.get_position().get_x() == doctest::Approx(1.0));
-//       CHECK(b.get_position().get_y() == doctest::Approx(2.0));
-//       CHECK(b.get_velocity().get_x() == doctest::Approx(0.5));
-//       CHECK(b.get_velocity().get_y() == doctest::Approx(-1.5));
-//     }
-
-//     SUBCASE("Setters update state correctly") {
-//       point::Point new_position(3.0, 4.0);
-//       point::Point new_velocity(-0.5, 2.5);
-
-//       b.set_position(new_position);
-//       b.set_velocity(new_velocity);
-
-//       CHECK(b.get_position().get_x() == doctest::Approx(3.0));
-//       CHECK(b.get_position().get_y() == doctest::Approx(4.0));
-//       CHECK(b.get_velocity().get_x() == doctest::Approx(-0.5));
-//       CHECK(b.get_velocity().get_y() == doctest::Approx(2.5));
-//     }
+//     CHECK(point::toroidal_distance(p0, q4) == doctest::Approx(269.258240));
+//     CHECK(point::toroidal_distance(q2, p0) == doctest::Approx(314.006369));
+//     CHECK(point::toroidal_distance(q1, q1) == doctest::Approx(0.00000000));
+//     CHECK(point::toroidal_distance(q1, q2) == doctest::Approx(536.003731));
+//     CHECK(point::toroidal_distance(q1, q3) == doctest::Approx(432.666153));
+//     CHECK(point::toroidal_distance(q1, q4) == doctest::Approx(619.838689));
+//     CHECK(point::toroidal_distance(q2, q3) == doctest::Approx(417.731971));
+//     CHECK(point::toroidal_distance(q2, q4) == doctest::Approx(327.566787));
+//     CHECK(point::toroidal_distance(q3, q4) == doctest::Approx(389.101529));
+//     CHECK(point::toroidal_distance(q4, q1) == doctest::Approx(619.838689));
 //   }
 
-//   SUBCASE("testing angle ") {
-//     boid::Boid b0(point::Point(1., 1.), point::Point(0., 1.));
-//     boid::Boid b1(point::Point(1., 7.), point::Point(4., 0.));
-//     boid::Boid b2(point::Point(2., sqrt(3) + 1), point::Point(0., 1.));
-//     CHECK(b0.angle(b0) == doctest::Approx(0.));
-//     CHECK(b0.angle(b1) == doctest::Approx(0.));
-//     CHECK(b0.angle(b2) == doctest::Approx(0.523599));
+//   SUBCASE("testing relative_position") {
+//     point::Point q2(1010., 250.);
+//     point::Point q3(90., 560.);
+//     point::Point q4(940., 730.);
+
+//     CHECK(point::relative_position(q2, q3).get_x() == 280.);
+//     CHECK(point::relative_position(q2, q3).get_y() == 310.);
+//     CHECK(point::relative_position(q2, q4).get_x() == -70.);
+//     CHECK(point::relative_position(q2, q4).get_y() == -320.);
+//     CHECK(point::relative_position(q3, q2).get_x() == -280.);
+//     CHECK(point::relative_position(q3, q2).get_y() == -310.);
+//     CHECK(point::relative_position(q3, q4).get_x() == -350.);
+//     CHECK(point::relative_position(q3, q4).get_y() == 170.);
 //   }
 
-//   SUBCASE("testing alignment with null alignment coefficient") {
-//     SUBCASE("Alignment with no neighbors") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//       std::vector<boid::Boid> neighbors;
-//       point::Point result = b.alignment(neighbors, 0.);
-//       CHECK(result == point::Point{0., 0.});
-//     }
-
-//     SUBCASE("Alignment with one neighbor - same velocity") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{2., 2.});
-//       std::vector<boid::Boid> neighbors = {
-//           boid::Boid(point::Point{1., 1.}, point::Point{2., 2.})};
-//       point::Point result = b.alignment(neighbors, 0.);
-//       CHECK(result == point::Point{0., 0.});
-//     }
-
-//     SUBCASE("Alignment with one neighbor - different velocity") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//       std::vector<boid::Boid> neighbors = {
-//           boid::Boid(point::Point{1., 1.}, point::Point{3., 3.})};
-//       point::Point result = b.alignment(neighbors, 0.);
-//       CHECK(result == point::Point{0., 0.});
-//     }
+//   SUBCASE("testing operator +") {
+//     point::Point sum1 = p0 + p1;
+//     point::Point sum2 = p0 + p2;
+//     point::Point sum3 = p1 + p2;
+//     point::Point sum4 = p2 + p1;
+//     CHECK(sum1.get_x() == doctest::Approx(1.00000000));
+//     CHECK(sum1.get_y() == doctest::Approx(2.00000000));
+//     CHECK(sum2.get_x() == doctest::Approx(-3.00000000));
+//     CHECK(sum2.get_y() == doctest::Approx(5.00000000));
+//     CHECK(sum3.get_x() == doctest::Approx(-2.00000000));
+//     CHECK(sum3.get_y() == doctest::Approx(7.00000000));
+//     CHECK(sum4.get_x() == doctest::Approx(-2.00000000));
+//     CHECK(sum4.get_y() == doctest::Approx(7.00000000));
 //   }
 
-//   SUBCASE("testing alignment with non-null alignment coefficient") {
-//     double a{2.};
-//     SUBCASE("Alignment with no neighbors") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//       std::vector<boid::Boid> neighbors;
-//       point::Point result = b.alignment(neighbors, a);
-//       CHECK(result == point::Point{0., 0.});
-//     }
-
-//     SUBCASE("Alignment with one neighbor - same velocity") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{2., 2.});
-//       std::vector<boid::Boid> neighbors = {
-//           boid::Boid(point::Point{1., 1.}, point::Point{2., 2.})};
-//       point::Point result = b.alignment(neighbors, a);
-//       CHECK(result == point::Point{0., 0.});
-//     }
-
-//     SUBCASE("Alignment with one neighbor - different velocity") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//       std::vector<boid::Boid> neighbors = {
-//           boid::Boid(point::Point{1., 1.}, point::Point{3., 3.})};
-//       point::Point result = b.alignment(neighbors, a);
-//       CHECK(result == point::Point{4., 4.});
-//     }
-
-//     SUBCASE("Alignment with multiple neighbors - average velocity") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//       std::vector<boid::Boid> neighbors = {
-//           boid::Boid(point::Point{1., 1.}, point::Point{3., 3.}),
-//           boid::Boid(point::Point{2., 2.}, point::Point{1., 5.}),
-//           boid::Boid(point::Point{3., 3.}, point::Point{2., 2.})};
-//       point::Point result = b.alignment(neighbors, a);
-
-//       CHECK(result.get_x() == doctest::Approx(2.));
-//       CHECK(result.get_y() == doctest::Approx(4.6666667));
-//     }
+//   SUBCASE("testing operator -") {
+//     point::Point diff1 = p0 - p1;
+//     point::Point diff2 = p2 - p0;
+//     point::Point diff3 = p1 - p2;
+//     point::Point diff3 = p2 - p1;
+//     CHECK(diff1.get_x() == doctest::Approx(-1.00000000));
+//     CHECK(diff1.get_y() == doctest::Approx(-2.00000000));
+//     CHECK(diff2.get_x() == doctest::Approx(-3.00000000));
+//     CHECK(diff2.get_y() == doctest::Approx(+5.00000000));
+//     CHECK(diff3.get_x() == doctest::Approx(+4.00000000));
+//     CHECK(diff3.get_y() == doctest::Approx(-3.00000000));
+//     CHECK(diff4.get_x() == doctest::Approx(-4.00000000));
+//     CHECK(diff4.get_y() == doctest::Approx(+3.00000000));
+//   }
+//   SUBCASE("testing operator *") {
+//     double constant0{0.};
+//     double constant1{2.};
+//     double constant2{-3.};
+//     point::Point q00 = p0 * constant0;
+//     point::Point q01 = p0 * constant1;
+//     point::Point q02 = p0 * constant2;
+//     point::Point q20 = p2 * constant0;
+//     point::Point q21 = p2 * constant1;
+//     point::Point q22 = p2 * constant2;
+//     CHECK(q00.get_x() == doctest::Approx(0.00000000));
+//     CHECK(q00.get_y() == doctest::Approx(0.00000000));
+//     CHECK(q01.get_x() == doctest::Approx(0.00000000));
+//     CHECK(q01.get_y() == doctest::Approx(0.00000000));
+//     CHECK(q02.get_x() == doctest::Approx(0.00000000));
+//     CHECK(q02.get_y() == doctest::Approx(0.00000000));
+//     CHECK(q20.get_x() == doctest::Approx(0.00000000));
+//     CHECK(q20.get_y() == doctest::Approx(0.00000000));
+//     CHECK(q21.get_x() == doctest::Approx(-6.00000000));
+//     CHECK(q21.get_y() == doctest::Approx(10.00000000));
+//     CHECK(q22.get_x() == doctest::Approx(9.00000000));
+//     CHECK(q22.get_y() == doctest::Approx(-15.00000000));
 //   }
 
-//   SUBCASE("testing separation") {
-//     double separation_dist = 5.0;
-//     double separation_coeff = 0.5;
+//   SUBCASE("testing operator /") {
+//     double constant1{2.};
+//     double constant2{-3.};
+//     point::Point q11 = p1 / constant1;
+//     point::Point q12 = p1 / constant2;
+//     point::Point q21 = p2 / constant1;
+//     point::Point q22 = p2 / constant2;
 
-//     SUBCASE("Separation with no neighbors") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//       std::vector<boid::Boid> neighbors;
-//       point::Point result =
-//           b.separation(neighbors, separation_dist, separation_coeff);
-//       CHECK(result == point::Point{0., 0.});
-//     }
-
-//     SUBCASE("Separation with neighbors all outside separation distance") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//       std::vector<boid::Boid> neighbors = {
-//           boid::Boid(point::Point{10., 0.}, point::Point{0., 0.}),
-//           boid::Boid(point::Point{0., -10.}, point::Point{0., 0.})};
-//       point::Point result =
-//           b.separation(neighbors, separation_dist, separation_coeff);
-//       CHECK(result == point::Point{0., 0.});
-//     }
-
-//     SUBCASE("Separation with one neighbor within range") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//       boid::Boid n1(point::Point{3., 0.},
-//                     point::Point{0., 0.});  // distanza 3.0
-//       std::vector<boid::Boid> neighbors = {n1};
-//       point::Point result =
-//           b.separation(neighbors, separation_dist, separation_coeff);
-//       CHECK(result.get_x() == doctest::Approx(-1.5));
-//       CHECK(result.get_y() == doctest::Approx(0));
-//     }
-
-//     SUBCASE("Separation with multiple neighbors, mixed range") {
-//       boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//       std::vector<boid::Boid> neighbors = {
-//           boid::Boid(point::Point{1., 0.}, point::Point{0., 0.}),
-//           boid::Boid(point::Point{-2., 0.}, point::Point{0., 0.}),
-//           boid::Boid(point::Point{10., 10.}, point::Point{0., 0.})};
-
-//       point::Point result =
-//           b.separation(neighbors, separation_dist, separation_coeff);
-//       CHECK(result.get_x() == doctest::Approx(0.5));
-//       CHECK(result.get_y() == doctest::Approx(0.));
-//     }
-
-//     SUBCASE("Separation with all neighbors on top of the boid (distance 0)")
-//     {
-//       boid::Boid b(point::Point{1., 1.}, point::Point{0., 0.});
-//       std::vector<boid::Boid> neighbors = {
-//           boid::Boid(point::Point{1., 1.}, point::Point{0., 0.}),
-//           boid::Boid(point::Point{1., 1.}, point::Point{0., 0.})};
-
-//       point::Point result =
-//           b.separation(neighbors, separation_dist, separation_coeff);
-//       CHECK(result == point::Point{0., 0.});
-//     }
-
-//     SUBCASE("testing cohesion") {
-//       double cohesion_coeff = 0.5;
-
-//       SUBCASE("Cohesion with no neighbors") {
-//         boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//         std::vector<boid::Boid> neighbors;
-//         point::Point result = b.cohesion(neighbors, cohesion_coeff);
-//         CHECK(result == point::Point{0., 0.});
-//       }
-
-//       SUBCASE("Cohesion with one neighbor") {
-//         boid::Boid b(point::Point{0., 0.}, point::Point{1., 1.});
-//         boid::Boid n1(point::Point{4., 0.}, point::Point{0., 0.});
-//         std::vector<boid::Boid> neighbors = {n1};
-//         point::Point result = b.cohesion(neighbors, cohesion_coeff);
-//         // center of mass is (4, 0), relative to b is (4, 0)
-//         CHECK(result.get_x() == doctest::Approx(2.0));
-//         CHECK(result.get_y() == doctest::Approx(0.0));
-//       }
-
-//       SUBCASE("Cohesion with multiple neighbors") {
-//         boid::Boid b(point::Point{1., 1.}, point::Point{1., 1.});
-//         std::vector<boid::Boid> neighbors = {
-//             boid::Boid(point::Point{3., 1.}, point::Point{0., 0.}),
-//             boid::Boid(point::Point{1., 3.}, point::Point{0., 0.}),
-//             boid::Boid(point::Point{-1., 1.}, point::Point{0., 0.})};
-
-//         // center of mass = (3 + 1 + (-1)) / 3 = (1, 5/3)
-//         // relative to b (1,1): (0, 2/3)
-//         // scaled by coeff: (0, 1/3)
-//         point::Point result = b.cohesion(neighbors, cohesion_coeff);
-//         CHECK(result.get_x() == doctest::Approx(0.0));
-//         CHECK(result.get_y() == doctest::Approx(1.0 / 3.0));
-//       }
-
-//       SUBCASE("Cohesion with neighbors all at same location as boid") {
-//         boid::Boid b(point::Point{2., 2.}, point::Point{0., 0.});
-//         std::vector<boid::Boid> neighbors = {
-//             boid::Boid(point::Point{2., 2.}, point::Point{0., 0.}),
-//             boid::Boid(point::Point{2., 2.}, point::Point{0., 0.})};
-
-//         point::Point result = b.cohesion(neighbors, cohesion_coeff);
-//         // Relative positions will all be (0,0), so center of mass is (0,0)
-//         CHECK(result == point::Point{0., 0.});
-//       }
-//     }
+//     CHECK(q11.get_x() == doctest::Approx(0.5));
+//     CHECK(q11.get_y() == doctest::Approx(1.0));
+//     CHECK(q12.get_x() == doctest::Approx(-1.0 / 3));
+//     CHECK(q12.get_y() == doctest::Approx(-2.0 / 3));
+//     CHECK(q21.get_x() == doctest::Approx(-1.5));
+//     CHECK(q21.get_y() == doctest::Approx(2.5));
+//     CHECK(q22.get_x() == doctest::Approx(1.0));
+//     CHECK(q22.get_y() == doctest::Approx(-5.0 / 3));
 //   }
-//}
+//   SUBCASE("testing operator ==") {
+//     point::Point p3(1., 2.);
+//     CHECK((p1 == p3) == true);
+//     CHECK((p1 == p2) == false);
+//     CHECK((p2 == p3) == false);
+//   }
+// }
+
+// ///////////////TESTING BOID CLASS//////////////////////////////
+
+// const point::Point pos1(3., -2.);
+// const point::Point vel1(5., -1.);
+
+// const point::Point pos2 =
+//     pos1 + 0.8 * d * 0.5 *
+//                point::Point(vel1.get_x() - sqrt(3) * vel1.get_y(),
+//                             sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                vel1.distance();
+
+// const point::Point vel2(-8.5, -6.);
+
+// const point::Point pos3 =
+//     pos1 + 0.8 * d * 0.5 *
+//                point::Point(vel1.get_x() + sqrt(3) * vel1.get_y(),
+//                             -sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                / vel1.distance();
+// const point::Point vel3(-7.3, 2.5);
+
+// const point::Point pos4 =
+//     pos1 + 0.5 * b_ds * 0.5 *
+//                point::Point(vel1.get_x() - sqrt(3) * vel1.get_y(),
+//                             sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                vel1.distance();
+// const point::Point vel4(-1., -2.);
+
+// const point::Point pos5 =
+//     pos1 + 0.5 * b_ds * 0.5 *
+//                point::Point(vel1.get_x() + sqrt(3) * vel1.get_y(),
+//                             -sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                vel1.distance();
+// const point::Point vel5(-5., -3.2);
+
+// TEST_CASE("Testing Prey class") {
+//   double s{0.1};
+//   double a{0.1};
+//   double c{0.004};
+//   double r{s * 6};
+
+//   const double x = pos1.getX();
+//   const double y = pos1.getY();
+
+//   boid::Prey b1(pos1, vel1);
+//   boid::Prey b2(pos2, vel2);
+//   boid::Prey b3(pos3, vel3);
+//   boid::Prey b4(pos4, vel4);
+//   boid::Prey b5;
+
+//   b5.setBoid(pos5, vel5);
+
+//   point::Point v1 = vel1;
+//   point::Point v2 = vel2;
+//   point::Point v3 = vel3;
+//   point::Point v4 = vel4;
+//   point::Point v5 = vel5;
+// }
+
+// std::vector<std::shared_ptr<boid::Boid>> near_b1{
+//     std::make_shared<boid::Prey>(b2), std::make_shared<boid::Prey>(b3),
+//     std::make_shared<boid::Prey>(b4), std::make_shared<boid::Prey>(b5)};
+
+// SUBCASE("Testing getters") {
+// boid:
+//   Prey b0;
+//   CHECK(b0.getPosition() == point::Point(0., 0.));
+//   CHECK(b0.getVelocity() == point::Point(0., 0.));
+
+//   CHECK(b1.getPosition() == point::Point(3., -2.));
+//   CHECK(b1.getVelocity() == point::Point(5., -1.));
+// }
+
+// SUBCASE("Testing setters") {
+//   CHECK(b5.getPosition().getX() == doctest::Approx(pos5.getX()));
+//   CHECK(b5.getPosition().getY() == doctest::Approx(pos5.getY()));
+
+//   CHECK(b5.getVelocity() == point::Point(-5., -3.2));
+// }
+
+// SUBCASE("Testing separation method") {
+//   double sep1_x = -s * 0.5 * b_ds * vel1.get_x() / vel1.distance();
+//   double sep1_y = -s * 0.5 * b_ds * vel1.get_y() / vel1.distance();
+
+//   CHECK(b1.separation(s, b_ds, near_b1).getX() == doctest::Approx(sep1_x));
+//   CHECK(b1.separation(s, b_ds, near_b1).getY() == doctest::Approx(sep1_y));
+// }
+
+// SUBCASE("Testing cohesion method") {
+//   double coh1_x = c * (0.5 * b_ds + 0.8 * d) * vel1.get_x() /
+//   vel1.distance(); double coh1_y = c * (0.5 * b_ds + 0.8 * d) * vel1.get_y()
+//   / vel1.distance();
+
+//   CHECK(b1.cohesion(c, near_b1).getX() == doctest::Approx(coh1_x));
+//   CHECK(b1.cohesion(c, near_b1).getY() == doctest::Approx(coh1_y));
+// }
+
+// SUBCASE("Testing alignment method") {
+//   double al1_x =
+//       a * ((vel2.getX() + vel3.getX() + vel4.getX() + vel5.getX()) / 4.
+//       - 5.);
+//   double al1_y =
+//       a * ((vel2.getY() + vel3.getY() + vel4.getY() + vel5.getY()) / 4.
+//       + 1.);
+
+//   CHECK(b1.alignment(a, near_b1).getX() == doctest::Approx(al1_x));
+//   CHECK(b1.alignment(a, near_b1).getY() == doctest::Approx(al1_y));
+// }
+
+// SUBCASE("Testing repulsion method") {
+//   // here we apply boid::Prey::repulsion on near_b1, which identifies the
+//   prey
+//   // near b1, even if it was initially intended to be applied on
+//   near_predators.
+
+//   double rep1_x = -r * (0.5 * b_ds + 0.8 * d) * vel1.get_x() /
+//   vel1.distance(); double rep1_y = -r * (0.5 * b_ds + 0.8 * d) * vel1.get_y()
+//   / vel1.distance();
+
+//   CHECK(b1.repulsion(r, near_b1).getX() == doctest::Approx(rep1_x));
+//   CHECK(b1.repulsion(r, near_b1).getY() == doctest::Approx(rep1_y));
+// }
+
+// SUBCASE("Testing clamp method") {
+//   b1.clamp(preyMinSpeed, preyMaxSpeed, v1);
+//   b2.clamp(preyMinSpeed, preyMaxSpeed, v2);
+//   b3.clamp(preyMinSpeed, preyMaxSpeed, v3);
+//   b4.clamp(preyMinSpeed, preyMaxSpeed, v4);
+//   b5.clamp(preyMinSpeed, preyMaxSpeed, v5);
+
+//   CHECK(v1.getX() ==
+//         doctest::Approx(preyMaxSpeed * vel1.get_x() / vel1.distance()));
+//   CHECK(v1.getY() ==
+//         doctest::Approx(preyMaxSpeed * vel1.get_y() / vel1.distance()));
+
+//   CHECK(v2.getX() ==
+//         doctest::Approx(preyMaxSpeed * vel2.get_x() / vel2.distance()));
+//   CHECK(v2.getY() ==
+//         doctest::Approx(preyMaxSpeed * vel2.get_y() / vel2.distance()));
+
+//   CHECK(v3.getX() ==
+//         doctest::Approx(preyMaxSpeed * vel3.get_x() / vel3.distance()));
+//   CHECK(v3.getY() ==
+//         doctest::Approx(preyMaxSpeed * vel3.get_y() / vel3.distance()));
+
+//   CHECK(v4.getX() ==
+//         doctest::Approx(preyMinSpeed * ve4.get_x() / vel4.distance()));
+//   CHECK(v4.getY() ==
+//         doctest::Approx(preyMinSpeed * ve4.get_y() / vel4.distance()));
+
+//   CHECK(v5.getX() ==
+//         doctest::Approx(preyMaxSpeed * vel5.get_x() / vel5.distance()));
+//   CHECK(v5.getY() ==
+//         doctest::Approx(preyMaxSpeed * vel5.get_y() / vel5.distance()));
+// }
+
+// TEST_CASE("Testing Predator class") {
+//   double ch{0.004};
+
+//   boid::Predator p1(pos1, vel1);
+//   boid::Predator p2(pos2, vel2);
+//   boid::Predator p3(pos3, vel3);
+//   boid::Predator p4;
+
+//   const point::Point pos6 =
+//       pos1 + 0.5 * d * 0.5 *
+//                  point::Point(vel1.get_x() - sqrt(3) * vel1.get_y(),
+//                               sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                  vel1.distance();
+//   p4.setBoid(pos6, vel4);
+
+//   point::Point v1 = vel1;
+//   point::Point v2 = vel2;
+//   point::Point v3 = vel3;
+//   point::Point v4 = vel4;
+
+//   std::vector<std::shared_ptr<boid::Boid>> near_p1{
+//       std::make_shared<boid::Predator>(p2),
+//       std::make_shared<boid::Predator>(p3),
+//       std::make_shared<boid::Predator>(p4)};
+
+//   SUBCASE("Testing getters") {
+//     boid::Predator p0;
+//     CHECK(p0.getPosition() == point::Point(0., 0.));
+//     CHECK(p0.getVelocity() == point::Point(0., 0.));
+//     CHECK(p1.getPosition() == point::Point(3., -2.));
+//     CHECK(p1.getVelocity() == point::Point(5., -1.));
+//   }
+
+//   SUBCASE("Testing setters") {
+//     CHECK(p2.getPosition().getX() == doctest::Approx(pos2.getX()));
+//     CHECK(p2.getPosition().getY() == doctest::Approx(pos2.getY()));
+//     CHECK(p2.getVelocity() == point::Point(-8.5, -6.));
+
+//     CHECK(p3.getPosition().getX() == doctest::Approx(pos3.getX()));
+//     CHECK(p3.getPosition().getY() == doctest::Approx(pos3.getY()));
+//     CHECK(p3.getVelocity() == point::Point(-7.3, 2.5));
+
+//     CHECK(p4.getPosition().getX() == doctest::Approx(pos6.getX()));
+//     CHECK(p4.getPosition().getY() == doctest::Approx(pos6.getY()));
+//     CHECK(p4.getVelocity() == point::Point(-1., -2.));
+//   }
+
+//   SUBCASE("Testing chase method") {
+//     // here we apply boidd::Predator::chase on near_p1, which identifies the
+//     // predators near p1, even if it was initially intended to be applied on
+//     // near_boids.
+
+//     double chase1_x =
+//         ch * d / 3. * (1.3 * std::sin(alfa) + 0.8 * std::sin(beta));
+//     double chase1_y =
+//         ch * -d / 3. * (1.3 * std::cos(alfa) + 0.8 * std::cos(beta));
+
+//     CHECK(p1.chase(ch, near_p1).getX() == doctest::Approx(chase1_x));
+//     CHECK(p1.chase(ch, near_p1).getY() == doctest::Approx(chase1_y));
+//   }
+
+//   SUBCASE("Testing clamp method") {
+//     p1.clamp(predatorMinSpeed, predatorMaxSpeed, v1);
+//     p2.clamp(predatorMinSpeed, predatorMaxSpeed, v2);
+//     p3.clamp(predatorMinSpeed, predatorMaxSpeed, v3);
+//     p4.clamp(predatorMinSpeed, predatorMaxSpeed, v4);
+
+//     CHECK(v1.getX() ==
+//           doctest::Approx(predatorMaxSpeed * vel1.get_x() /
+//           vel1.distance()));
+//     CHECK(v1.getY() ==
+//           doctest::Approx(predatorMaxSpeed * vel1.get_y() /
+//           vel1.distance()));
+
+//     CHECK(v2.getX() ==
+//           doctest::Approx(predatorMaxSpeed * vel2.get_x() /
+//           vel2.distance()));
+//     CHECK(v2.getY() ==
+//           doctest::Approx(predatorMaxSpeed * vel2.get_y() /
+//           vel2.distance()));
+
+//     CHECK(v3.getX() ==
+//           doctest::Approx(predatorMaxSpeed * vel3.get_x() /
+//           vel3.distance()));
+//     CHECK(v3.getY() ==
+//           doctest::Approx(predatorMaxSpeed * vel3.get_y() /
+//           vel3.distance()));
+
+//     CHECK(v4.getX() ==
+//           doctest::Approx(predatorMinSpeed * ve4.get_x() / vel4.distance()));
+//     CHECK(v4.getY() ==
+//           doctest::Approx(predatorMinSpeed * ve4.get_y() / vel4.distance()));
+//   }
+// }

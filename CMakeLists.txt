@@ -1,41 +1,36 @@
 cmake_minimum_required(VERSION 3.16)
-project(boids VERSION 0.1.0)
-
-# abilita il supporto per i test, tra cui l'opzione BUILD_TESTING usata sotto
-include(CTest)
+project(Boids VERSION 0.1.0)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# richiedi l'uso di C++17, senza estensioni non-standard offerte dal compilatore usato 
+# require C++17, without not-standard extensions offered by the compiler
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# abilita warning
+# abilitate warning
 string(APPEND CMAKE_CXX_FLAGS
-      " -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion"
-      " -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast")
+        " -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion"
+        " -Wshadow -Wimplicit-fallthrough -Wextra-semi -Wold-style-cast")
 
-# abilita asserzioni di debug (in gcc), l'address sanitizer e l'undefined-behaviour sanitizer in debug mode
+# abilitate debug assertions (in gcc), address sanitizer and undefined-behaviour sanitizer in debug mode
 string(APPEND CMAKE_CXX_FLAGS_DEBUG " -D_GLIBCXX_ASSERTIONS -fsanitize=address,undefined -fno-omit-frame-pointer")
 string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " -fsanitize=address,undefined -fno-omit-frame-pointer")
 
-# richiedi il componente graphics della libreria SFML, versione 2.5
-#   le dipendenze vengono identificate automaticamente
-find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
-find_package(TGUI REQUIRED)
+find_package(SFML COMPONENTS graphics REQUIRED)
 
-add_executable(boids src/main.cpp src/boid.cpp src/point.cpp  src/sfml.cpp ) 
-target_link_libraries(boids sfml-graphics tgui)
+add_executable(Boids src/point.cpp src/boid.cpp src/flock.cpp src/statistics.cpp src/graphics.cpp  src/main.cpp)
 
-# se il testing e' abilitato...
-#   per disabilitare il testing, passare -DBUILD_TESTING=OFF a cmake durante la fase di configurazione
+target_link_libraries(Boids PRIVATE sfml-graphics)
+
+# if testing enabled...
 if (BUILD_TESTING)
 
-  # aggiungi l'eseguibile all.t
-  # add_executable(all.t all.t.cpp complex.t.cpp)
-  # aggiungi l'eseguibile all.t alla lista dei test
-  # add_test(NAME all.t COMMAND all.t)
-  add_executable(boids.t  src/test.cpp src/boid.cpp src/point.cpp  src/sfml.cpp ) 
-  target_link_libraries(boids.t sfml-graphics tgui)
-endif()
+    add_executable(Boids.t src/point.cpp src/boid.cpp src/flock.cpp src/statistics.cpp src/graphics.cpp  src/test.cpp)
+
+    target_link_libraries(Boids.t PRIVATE sfml-graphics)
+
+    # add executable Boids.t to test lists
+    add_test(NAME Boids.t COMMAND Boids.t)
+
+endif ()

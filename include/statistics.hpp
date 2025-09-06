@@ -6,7 +6,7 @@ namespace statistics {
 struct Statistics {
   double mean_distance;
   double dev_distance;
-  double mean_velocty;
+  double mean_velocity;
   double dev_velocity;
 
   Statistics();
