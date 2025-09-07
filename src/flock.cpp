@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "../include/boid.hpp"
-#include "../include/constants.hpp"
+#include "../include/graphics.hpp"
 #include "../include/point.hpp"
 #include "../include/statistics.hpp"
 
@@ -80,9 +80,9 @@ void Flock::setFlightParameters(std::istream& in, std::ostream& out) {
 }
 
 void Flock::generateBoids() {
-  std::uniform_real_distribution<> dist_pos_x(0., constants::window_width);
-  std::uniform_real_distribution<> dist_pos_y(0., constants::window_height);
-  std::uniform_real_distribution<> dist_angle(0, 2 * constants::PI);
+  std::uniform_real_distribution<> dist_pos_x(0., graphics::window_width);
+  std::uniform_real_distribution<> dist_pos_y(0., graphics::window_height);
+  std::uniform_real_distribution<> dist_angle(0, 2 * M_PI);
   std::uniform_real_distribution<> dist_vel(0, 5.);
 
   prey_flock_.clear();
@@ -208,12 +208,12 @@ std::array<point::Point, 2> Flock::updateBoid(std::size_t i, bool is_prey,
 
   p += v * dt;
 
-  if (p.getX() < 0) p.setX(p.getX() + constants::window_width);
-  if (p.getX() > constants::window_width)
-    p.setX(p.getX() - constants::window_width);
-  if (p.getY() < 0) p.setY(p.getY() + constants::window_height);
-  if (p.getY() > constants::window_height)
-    p.setY(p.getY() - constants::window_height);
+  if (p.getX() < 0) p.setX(p.getX() + graphics::window_width);
+  if (p.getX() > graphics::window_width)
+    p.setX(p.getX() - graphics::window_width);
+  if (p.getY() < 0) p.setY(p.getY() + graphics::window_height);
+  if (p.getY() > graphics::window_height)
+    p.setY(p.getY() - graphics::window_height);
 
   return {p, v};
 }
@@ -229,22 +229,22 @@ void Flock::updateFlock(const double dt) const {
   new_pred_pos.reserve(n_predators_);
   new_pred_vel.reserve(n_predators_);
 
-  for (size_t i = 0; i < n_prey_; ++i) {
+  for (std::size_t i = 0; i < n_prey_; ++i) {
     auto res = updateBoid(i, true, dt);
     new_prey_pos.push_back(res[0]);
     new_prey_vel.push_back(res[1]);
   }
 
-  for (size_t i = 0; i < n_predators_; ++i) {
+  for (std::size_t i = 0; i < n_predators_; ++i) {
     auto res = updateBoid(i, false, dt);
     new_pred_pos.push_back(res[0]);
     new_pred_vel.push_back(res[1]);
   }
 
-  for (size_t i = 0; i < n_predators_; ++i) {
+  for (std::size_t i = 0; i < n_predators_; ++i) {
     predator_flock_[i]->setBoid(new_pred_pos[i], new_pred_vel[i]);
   }
-  for (size_t i = 0; i < n_prey_; ++i) {
+  for (std::size_t i = 0; i < n_prey_; ++i) {
     prey_flock_[i]->setBoid(new_prey_pos[i], new_prey_vel[i]);
   }
 }

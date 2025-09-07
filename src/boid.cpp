@@ -5,7 +5,7 @@
 #include <cmath>
 #include <numeric>
 
-#include "../include/constants.hpp"
+#include "../include/graphics.hpp"
 
 namespace boid {
 
@@ -115,9 +115,11 @@ void Prey::clamp(const double min_speed, const double max_speed,
   assert(min_speed <= max_speed);
 
   const double speed = velocity.distance();
+  if (speed == 0.0) return;
   if (speed > max_speed)
     velocity = (velocity / speed) * max_speed;
   else if (speed < min_speed)
+
     velocity = (velocity / speed) * min_speed;
 }
 
@@ -149,6 +151,7 @@ void Predator::clamp(const double min_speed, const double max_speed,
   assert(min_speed <= max_speed);
 
   const double speed = velocity.distance();
+  if (speed == 0.0) return;
   if (speed > max_speed)
     velocity = (velocity / speed) * max_speed;
   else if (speed < min_speed)

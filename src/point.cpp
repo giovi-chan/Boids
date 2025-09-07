@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cmath>
 
-#include "../include/constants.hpp"
+#include "../include/graphics.hpp"
 
 namespace point {
 
@@ -50,8 +50,8 @@ bool operator==(Point const& p, Point const& q) {
 }
 
 Point relativePosition(const Point& p1, const Point& p2) {
-  double width = static_cast<double>(constants::window_width);
-  double height = static_cast<double>(constants::window_height);
+  double width = static_cast<double>(graphics::window_width);
+  double height = static_cast<double>(graphics::window_height);
   double half_width = width / 2.0;
   double half_height = height / 2.0;
 

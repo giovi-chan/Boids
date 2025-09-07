@@ -2,19 +2,16 @@
 #include <iostream>
 #include <string>
 
-#include "../include/constants.hpp"
 #include "../include/flock.hpp"
 #include "../include/graphics.hpp"
 
 int main() {
   try {
-    const unsigned int W{constants::window_width};
-    const unsigned int H{constants::window_height};
-
-    auto window = graphics::makeWindow(W, H, "BOIDS");
+    auto window = graphics::makeWindow(graphics::window_width,
+                                       graphics::window_height, "Boids");
 
     const std::size_t N_PREY = 200;
-    const std::size_t N_PRED = 3;
+    const std::size_t N_PRED = 0;
     flock::Flock F(N_PREY, N_PRED);
     F.generateBoids();
 
@@ -32,12 +29,12 @@ int main() {
         }
       }
 
-      const float dt = simClock.restart().asSeconds();
+      const float dt = 25 * simClock.restart().asSeconds();
+
       F.updateFlock(dt);
 
-      window->clear(sf::Color(20, 20, 30));
-
       graphics::drawFrame(*window, F, style);
+
       window->display();
     }
   } catch (const std::exception& e) {

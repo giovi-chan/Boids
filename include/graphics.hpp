@@ -5,7 +5,6 @@
 #include <memory>
 #include <vector>
 
-// forward declarations per evitare include pesanti
 namespace boid {
 class Boid;
 }
@@ -15,6 +14,9 @@ class Flock;
 
 namespace graphics {
 
+inline constexpr unsigned int window_width = 1200;
+inline constexpr unsigned int window_height = 800;
+
 // Parametri di stile per i boids
 struct Style {
   float size_px = 10.f;    // "raggio" dei triangoli
@@ -23,7 +25,7 @@ struct Style {
   sf::Color prey_outline = sf::Color(30, 80, 160);
   sf::Color pred_fill = sf::Color(255, 100, 100);
   sf::Color pred_outline = sf::Color(160, 40, 40);
-  sf::Color bg = sf::Color(18, 18, 22);
+  sf::Color bg = sf::Color(255, 255, 0);
 };
 
 std::unique_ptr<sf::RenderWindow> makeWindow(unsigned int width,

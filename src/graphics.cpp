@@ -5,27 +5,22 @@
 #include <cmath>
 
 #include "../include/boid.hpp"
-#include "../include/constants.hpp"  // per window_width/window_height se vuoi usarli qui
 #include "../include/flock.hpp"
 #include "../include/point.hpp"
 
-using std::unique_ptr;
-
 namespace graphics {
 
-unique_ptr<sf::RenderWindow> makeWindow(unsigned width, unsigned height,
-                                        const std::string& title) {
+std::unique_ptr<sf::RenderWindow> makeWindow(unsigned width, unsigned height,
+                                             const std::string& title) {
   sf::ContextSettings settings;
   settings.antialiasingLevel = 8;
-  auto win = std::make_unique<sf::RenderWindow>(
+  auto window = std::make_unique<sf::RenderWindow>(
       sf::VideoMode(width, height), title, sf::Style::Close, settings);
-  win->setVerticalSyncEnabled(true);
-  return win;
+  window->setVerticalSyncEnabled(true);
+  return window;
 }
 
 float angleDegFromVelocity(double vx, double vy) {
-  // atan2(y,x) -> radianti, convertiamo in gradi. La punta del triangolo è
-  // definita lungo +X.
   float deg = static_cast<float>(std::atan2(vy, vx) * 180.0 / M_PI);
   return deg;
 }
