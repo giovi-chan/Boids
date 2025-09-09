@@ -1,6 +1,6 @@
 #include <SFML/Graphics.hpp>
-#include <iostream>
-#include <string>
+// #include <iostream>
+// #include <string>
 
 #include "../include/flock.hpp"
 #include "../include/graphics.hpp"
@@ -9,19 +9,18 @@ int main() {
   auto window = graphics::makeWindow(graphics::window_width,
                                      graphics::window_height, "Boids");
 
-  const std::size_t N_PREY = 300;
-  const std::size_t N_PREDATOR = 20;
-  flock::Flock flock(N_PREY, N_PREDATOR);
+  const std::size_t n_prey = 300;
+  const std::size_t n_predators = 20;
+  flock::Flock flock(n_prey, n_predators);
   flock.generateBoids();
 
   graphics::Style style;
 
   sf::Clock simClock;
 
-  if (!graphics::loadBackground(
-          "/home/giovanni/Boids/assets/world_map31.png")) {
-    std::cerr << "Errore: impossibile caricare lo sfondo!\n";
-    return 1;
+  if (!graphics::loadBackground("assets/world_map31.png")) {
+    std::cerr << "Errore: impossibile caricare lo sfondo. Userò un colore di "
+                 "default.\n";
   }
 
   while (window->isOpen()) {
@@ -33,7 +32,7 @@ int main() {
       }
     }
 
-    const float dt = 10 * simClock.restart().asSeconds();
+    const float dt = 20 * simClock.restart().asSeconds();
 
     flock.updateFlock(dt);
 

@@ -15,7 +15,7 @@ sf::Sprite backgroundSprite;
 
 bool loadBackground(const std::string& filename) {
   if (!backgroundTexture.loadFromFile(filename)) {
-    return false;  // errore se il file non si carica
+    return false;
   }
   backgroundSprite.setTexture(backgroundTexture);
   const float scaleX = static_cast<float>(window_width) /

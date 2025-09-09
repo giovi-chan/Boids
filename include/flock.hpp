@@ -2,7 +2,6 @@
 #define FLOCK_HPP
 
 #include <array>
-#include <cmath>
 #include <iostream>
 #include <memory>
 #include <random>
@@ -65,6 +64,8 @@ class Flock {
   // SpeedLimits getSpeedLimits() const; non serve
 
   static std::array<double, 3> getDistancesParameters();
+
+  void setFlockSize(std::istream& in, std::ostream& out);
 
   void setFlightParameters(std::istream& in, std::ostream& out);
 
