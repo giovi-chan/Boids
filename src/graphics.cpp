@@ -10,6 +10,22 @@
 
 namespace graphics {
 
+sf::Texture backgroundTexture;
+sf::Sprite backgroundSprite;
+
+bool loadBackground(const std::string& filename) {
+  if (!backgroundTexture.loadFromFile(filename)) {
+    return false;  // errore se il file non si carica
+  }
+  backgroundSprite.setTexture(backgroundTexture);
+  const float scaleX = static_cast<float>(window_width) /
+                       static_cast<float>(backgroundTexture.getSize().x);
+  const float scaleY = static_cast<float>(window_height) /
+                       static_cast<float>(backgroundTexture.getSize().y);
+  backgroundSprite.setScale(scaleX, scaleY);
+  return true;
+}
+
 std::unique_ptr<sf::RenderWindow> makeWindow(unsigned width, unsigned height,
                                              const std::string& title) {
   sf::ContextSettings settings;
@@ -60,40 +76,11 @@ void drawBoid(sf::RenderWindow& window, double x, double y, double vx,
 }
 
 void drawFrame(sf::RenderWindow& window, const flock::Flock& flock,
-               const Style& style, const int time) {
-  window.clear(/*style.background*/);
-  if ((time / 1000) % 2) {
-    sf::VertexArray gradient1(sf::Quads, 4);
-
-    gradient1[0].position = sf::Vector2f(0, 0);
-    gradient1[1].position = sf::Vector2f(graphics::window_width, 0);
-    gradient1[2].position =
-        sf::Vector2f(graphics::window_width, graphics::window_height);
-    gradient1[3].position = sf::Vector2f(0, graphics::window_height);
-
-    gradient1[0].color = sf::Color(255, 253, 208);  // giallo chiaro
-    gradient1[1].color = sf::Color(255, 253, 208);
-    gradient1[2].color = sf::Color(135, 206, 250);  // azzurro
-    gradient1[3].color = sf::Color(135, 206, 250);
-
-    window.draw(gradient1);
-  }
-
-  else {
-    sf::VertexArray gradient2(sf::Quads, 4);
-
-    gradient2[0].position = sf::Vector2f(0, 0);
-    gradient2[1].position = sf::Vector2f(graphics::window_width, 0);
-    gradient2[2].position =
-        sf::Vector2f(graphics::window_width, graphics::window_height);
-    gradient2[3].position = sf::Vector2f(0, graphics::window_height);
-
-    gradient2[0].color = sf::Color(72, 61, 139);
-    gradient2[1].color = sf::Color(72, 61, 139);
-    gradient2[2].color = sf::Color(255, 99, 71);
-    gradient2[3].color = sf::Color(255, 140, 0);
-
-    window.draw(gradient2);
+               const Style& style) {
+  if (backgroundTexture.getSize().x > 0 && backgroundTexture.getSize().y > 0) {
+    window.draw(backgroundSprite);
+  } else {
+    window.clear(style.background);
   }
 
   for (const auto& prey : flock.getPreyFlock()) {
@@ -109,8 +96,6 @@ void drawFrame(sf::RenderWindow& window, const flock::Flock& flock,
     drawBoid(window, pos.getX(), pos.getY(), vel.getX(), vel.getY(), style,
              false);
   }
-
-  window.display();
 }
 
 }  // namespace graphics

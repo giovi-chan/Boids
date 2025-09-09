@@ -9,8 +9,8 @@ int main() {
   auto window = graphics::makeWindow(graphics::window_width,
                                      graphics::window_height, "Boids");
 
-  const std::size_t N_PREY = 200;
-  const std::size_t N_PREDATOR = 5;
+  const std::size_t N_PREY = 300;
+  const std::size_t N_PREDATOR = 20;
   flock::Flock flock(N_PREY, N_PREDATOR);
   flock.generateBoids();
 
@@ -18,7 +18,12 @@ int main() {
 
   sf::Clock simClock;
 
-  int t{0};
+  if (!graphics::loadBackground(
+          "/home/giovanni/Boids/assets/world_map31.png")) {
+    std::cerr << "Errore: impossibile caricare lo sfondo!\n";
+    return 1;
+  }
+
   while (window->isOpen()) {
     sf::Event event;
     while (window->pollEvent(event)) {
@@ -28,12 +33,11 @@ int main() {
       }
     }
 
-    const float dt = 20 * simClock.restart().asSeconds();
-    ++t;
+    const float dt = 10 * simClock.restart().asSeconds();
 
     flock.updateFlock(dt);
 
-    graphics::drawFrame(*window, flock, style, t);
+    graphics::drawFrame(*window, flock, style);
 
     window->display();
   }
