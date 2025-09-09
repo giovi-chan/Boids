@@ -2,10 +2,9 @@
 
 #include <array>
 #include <cassert>
-// #include <chrono>
 #include <iostream>
 #include <memory>
-// #include <numeric>
+#include <numeric>
 #include <random>
 #include <vector>
 
@@ -53,6 +52,30 @@ FlightParameters Flock::getFlightParameters() const {
 std::array<double, 3> Flock::getDistancesParameters() {
   return {d, prey_ds_, predator_ds};
 }
+void Flock::setFlockSize(std::istream& in, std::ostream& out) {
+  out << "\nQuante prede vuoi? ";
+  std::size_t prey;
+  in >> prey;
+  if (in.fail() || prey == 0) {
+    out << "Input non valido. Uso numero di default.\n";
+    prey = 200;
+    in.clear();
+    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  }
+
+  out << "Quanti predatori vuoi? ";
+  std::size_t predators;
+  in >> predators;
+  if (in.fail()) {
+    out << "Input non valido. Uso numero di default.\n";
+    predators = 5;
+    in.clear();
+    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  }
+
+  n_prey_ = prey;
+  n_predators_ = predators;
+}
 
 void Flock::setFlightParameters(std::istream& in, std::ostream& out) {
   char statement;
@@ -60,22 +83,38 @@ void Flock::setFlightParameters(std::istream& in, std::ostream& out) {
          "(Y/n) ";
   in >> statement;
 
-  if (in.fail()) throw std::runtime_error("Input failed.");
+  if (in.fail() || (statement != 'Y' && statement != 'y' && statement != 'N' &&
+                    statement != 'n')) {
+    out << "\nInput non valido. Uso i parametri di default (s=0.1, a=0.1, "
+           "c=0.004)\n";
+    return;  // rimane con i parametri di default
+  }
 
   if (statement == 'Y' || statement == 'y') {
-    out << "\nEnter separation coefficient: ";
-    in >> flight_parameters_.separation;
+    double s, a, c;
+    out << "Enter separation coefficient: ";
+    in >> s;
     out << "Enter alignment coefficient: ";
-    in >> flight_parameters_.alignment;
+    in >> a;
     out << "Enter cohesion coefficient: ";
-    in >> flight_parameters_.cohesion;
+    in >> c;
 
-    flight_parameters_.repulsion = flight_parameters_.separation * 6;
-    flight_parameters_.chase = flight_parameters_.cohesion * 2;
-  } else if (statement == 'N' || statement == 'n') {
-    out << "\nUsing default parameters (s=0.1, a=0.1, c=0.004)\n";
+    if (in.fail()) {
+      out << "Input non valido. Uso i parametri di default (s=0.1, a=0.1, "
+             "c=0.004)\n";
+      in.clear();  // reset stream error
+      in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      return;
+    }
+
+    flight_parameters_.separation = s;
+    flight_parameters_.alignment = a;
+    flight_parameters_.cohesion = c;
+
+    flight_parameters_.repulsion = s * 6;
+    flight_parameters_.chase = c * 2;
   } else {
-    throw std::domain_error("Error: Invalid input.");
+    out << "Using default parameters (s=0.1, a=0.1, c=0.004)\n";
   }
 }
 
@@ -208,12 +247,18 @@ std::array<point::Point, 2> Flock::updateBoid(std::size_t i, bool is_prey,
 
   p += v * dt;
 
-  if (p.getX() < 0) p.setX(p.getX() + graphics::window_width);
-  if (p.getX() > graphics::window_width)
+  if (p.getX() < 0) {
+    p.setX(p.getX() + graphics::window_width);
+  }
+  if (p.getX() > graphics::window_width) {
     p.setX(p.getX() - graphics::window_width);
-  if (p.getY() < 0) p.setY(p.getY() + graphics::window_height);
-  if (p.getY() > graphics::window_height)
+  }
+  if (p.getY() < 0) {
+    p.setY(p.getY() + graphics::window_height);
+  }
+  if (p.getY() > graphics::window_height) {
     p.setY(p.getY() - graphics::window_height);
+  }
 
   return {p, v};
 }
@@ -230,15 +275,15 @@ void Flock::updateFlock(const double dt) const {
   new_pred_vel.reserve(n_predators_);
 
   for (std::size_t i = 0; i < n_prey_; ++i) {
-    auto res = updateBoid(i, true, dt);
-    new_prey_pos.push_back(res[0]);
-    new_prey_vel.push_back(res[1]);
+    auto result = updateBoid(i, true, dt);
+    new_prey_pos.push_back(result[0]);
+    new_prey_vel.push_back(result[1]);
   }
 
   for (std::size_t i = 0; i < n_predators_; ++i) {
-    auto res = updateBoid(i, false, dt);
-    new_pred_pos.push_back(res[0]);
-    new_pred_vel.push_back(res[1]);
+    auto result = updateBoid(i, false, dt);
+    new_pred_pos.push_back(result[0]);
+    new_pred_vel.push_back(result[1]);
   }
 
   for (std::size_t i = 0; i < n_predators_; ++i) {

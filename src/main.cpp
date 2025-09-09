@@ -6,13 +6,13 @@
 #include "../include/graphics.hpp"
 
 int main() {
+  flock::Flock flock(0, 0);  // creo un Flock vuoto
+  flock.setFlockSize(std::cin, std::cout);
+  flock.setFlightParameters(std::cin, std::cout);
+  flock.generateBoids();
+
   auto window = graphics::makeWindow(graphics::window_width,
                                      graphics::window_height, "Boids");
-
-  const std::size_t n_prey = 300;
-  const std::size_t n_predators = 20;
-  flock::Flock flock(n_prey, n_predators);
-  flock.generateBoids();
 
   graphics::Style style;
 
