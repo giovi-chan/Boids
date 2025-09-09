@@ -21,61 +21,93 @@ std::unique_ptr<sf::RenderWindow> makeWindow(unsigned width, unsigned height,
 }
 
 float angleDegFromVelocity(double vx, double vy) {
-  float deg = static_cast<float>(std::atan2(vy, vx) * 180.0 / M_PI);
-  return deg;
+  float degree = static_cast<float>(std::atan2(vy, vx) * 180.0 / M_PI);
+  return degree;
 }
 
-sf::ConvexShape makeBoidTriangle(float size_px, float outline_px,
-                                 sf::Color fill, sf::Color outline) {
+sf::ConvexShape makeBoidTriangle(float size, float stroke, sf::Color fill,
+                                 sf::Color outline) {
   // Triangolo isoscele centrato sull'origine, punta verso +X
   // Vertici in senso orario: tip, back-top, back-bottom
-  const float L = size_px;         // lunghezza "punta"
-  const float W = size_px * 0.6f;  // larghezza coda
+  const float L = size;         // lunghezza "punta"
+  const float W = size * 0.6f;  // larghezza coda
 
-  sf::ConvexShape tri(3);
-  tri.setPoint(0, sf::Vector2f(+L, 0.f));        // punta
-  tri.setPoint(1, sf::Vector2f(-L * 0.8f, +W));  // coda sopra
-  tri.setPoint(2, sf::Vector2f(-L * 0.8f, -W));  // coda sotto
+  sf::ConvexShape triangle(3);
+  triangle.setPoint(0, sf::Vector2f(+L, 0.f));       // punta
+  triangle.setPoint(1, sf::Vector2f(-L * 1.f, +W));  // coda sopra
+  triangle.setPoint(2, sf::Vector2f(-L * 1.f, -W));  // coda sotto
 
-  tri.setFillColor(fill);
-  tri.setOutlineColor(outline);
-  tri.setOutlineThickness(outline_px);
-  return tri;
+  triangle.setFillColor(fill);
+  triangle.setOutlineColor(outline);
+  triangle.setOutlineThickness(stroke);
+  return triangle;
 }
 
 void drawBoid(sf::RenderWindow& window, double x, double y, double vx,
-              double vy, const Style& style, bool is_predator) {
-  sf::ConvexShape tri =
-      makeBoidTriangle(style.size_px, style.stroke_px,
-                       is_predator ? style.pred_fill : style.prey_fill,
-                       is_predator ? style.pred_outline : style.prey_outline);
+              double vy, const Style& style, bool is_prey) {
+  sf::ConvexShape triangle =
+      is_prey ? makeBoidTriangle(style.prey_size, style.stroke, style.prey_fill,
+                                 style.prey_outline)
+              : makeBoidTriangle(style.predator_size, style.stroke,
+                                 style.predator_fill, style.predator_outline);
 
   // Posizioniamo al centro (x,y) e ruotiamo verso la velocità
-  tri.setPosition(static_cast<float>(x), static_cast<float>(y));
-  float deg = angleDegFromVelocity(vx, vy);
-  tri.setRotation(deg);
+  triangle.setPosition(static_cast<float>(x), static_cast<float>(y));
+  float degree = angleDegFromVelocity(vx, vy);
+  triangle.setRotation(degree);
 
-  window.draw(tri);
+  window.draw(triangle);
 }
 
-void drawFrame(sf::RenderWindow& window, const flock::Flock& F,
-               const Style& style) {
-  window.clear(style.bg);
+void drawFrame(sf::RenderWindow& window, const flock::Flock& flock,
+               const Style& style, const int time) {
+  window.clear(/*style.background*/);
+  if ((time / 1000) % 2) {
+    sf::VertexArray gradient1(sf::Quads, 4);
 
-  // Prede
-  for (const auto& p : F.getPreyFlock()) {
-    const auto pos = p->getPosition();
-    const auto vel = p->getVelocity();
-    drawBoid(window, pos.getX(), pos.getY(), vel.getX(), vel.getY(), style,
-             false);
+    gradient1[0].position = sf::Vector2f(0, 0);
+    gradient1[1].position = sf::Vector2f(graphics::window_width, 0);
+    gradient1[2].position =
+        sf::Vector2f(graphics::window_width, graphics::window_height);
+    gradient1[3].position = sf::Vector2f(0, graphics::window_height);
+
+    gradient1[0].color = sf::Color(255, 253, 208);  // giallo chiaro
+    gradient1[1].color = sf::Color(255, 253, 208);
+    gradient1[2].color = sf::Color(135, 206, 250);  // azzurro
+    gradient1[3].color = sf::Color(135, 206, 250);
+
+    window.draw(gradient1);
   }
 
-  // Predatori
-  for (const auto& pr : F.getPredatorFlock()) {
-    const auto pos = pr->getPosition();
-    const auto vel = pr->getVelocity();
+  else {
+    sf::VertexArray gradient2(sf::Quads, 4);
+
+    gradient2[0].position = sf::Vector2f(0, 0);
+    gradient2[1].position = sf::Vector2f(graphics::window_width, 0);
+    gradient2[2].position =
+        sf::Vector2f(graphics::window_width, graphics::window_height);
+    gradient2[3].position = sf::Vector2f(0, graphics::window_height);
+
+    gradient2[0].color = sf::Color(72, 61, 139);
+    gradient2[1].color = sf::Color(72, 61, 139);
+    gradient2[2].color = sf::Color(255, 99, 71);
+    gradient2[3].color = sf::Color(255, 140, 0);
+
+    window.draw(gradient2);
+  }
+
+  for (const auto& prey : flock.getPreyFlock()) {
+    const auto pos = prey->getPosition();
+    const auto vel = prey->getVelocity();
     drawBoid(window, pos.getX(), pos.getY(), vel.getX(), vel.getY(), style,
              true);
+  }
+
+  for (const auto& predator : flock.getPredatorFlock()) {
+    const auto pos = predator->getPosition();
+    const auto vel = predator->getVelocity();
+    drawBoid(window, pos.getX(), pos.getY(), vel.getX(), vel.getY(), style,
+             false);
   }
 
   window.display();

@@ -5,43 +5,47 @@
 #include <memory>
 #include <vector>
 
-namespace boid {
-class Boid;
-}
-namespace flock {
-class Flock;
-}
+#include "../include/flock.hpp"
 
 namespace graphics {
 
 inline constexpr unsigned int window_width = 1200;
 inline constexpr unsigned int window_height = 800;
 
-// Parametri di stile per i boids
 struct Style {
-  float size_px = 10.f;    // "raggio" dei triangoli
-  float stroke_px = 1.2f;  // spessore contorno
+  float prey_size = 5.f;
+  float predator_size = 7.f;
+  float stroke = 1.f;
   sf::Color prey_fill = sf::Color(80, 160, 255);
   sf::Color prey_outline = sf::Color(30, 80, 160);
-  sf::Color pred_fill = sf::Color(255, 100, 100);
-  sf::Color pred_outline = sf::Color(160, 40, 40);
-  sf::Color bg = sf::Color(255, 255, 0);
+  sf::Color predator_fill = sf::Color(255, 100, 100);
+  sf::Color predator_outline = sf::Color(160, 40, 40);
 };
+
+// struct Style_night {
+//   float prey_size = 5.f;
+//   float predator_size = 7.f;
+//   float stroke = 1.f;
+//   sf::Color prey_fill = sf::Color(0, 0, 0);
+//   sf::Color prey_outline = sf::Color(30, 80, 160);
+//   sf::Color predator_fill = sf::Color(128, 0, 128);
+//   sf::Color predator_outline = sf::Color(160, 40, 40);
+// };
 
 std::unique_ptr<sf::RenderWindow> makeWindow(unsigned int width,
                                              unsigned int height,
                                              const std::string& title);
 
-void drawFrame(sf::RenderWindow& window, const flock::Flock& F,
-               const Style& style);
+void drawFrame(sf::RenderWindow& window, const flock::Flock& flock,
+               const Style& style, const int time);
 
 // Converte (vx,vy) -> gradi per ruotare il triangolo
 float angleDegFromVelocity(double vx, double vy);
 
 // Costruisce un triangolo isoscele centrato in (0,0) e con punta verso +X; poi
 // useremo trasformazioni
-sf::ConvexShape makeBoidTriangle(float size_px, float outline_px,
-                                 sf::Color fill, sf::Color outline);
+sf::ConvexShape makeBoidTriangle(float size, float stroke, sf::Color fill,
+                                 sf::Color outline);
 
 // Disegna un singolo boid (triangolo traslato + ruotato)
 void drawBoid(sf::RenderWindow& window, double x, double y, double vx,
