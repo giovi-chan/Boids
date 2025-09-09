@@ -65,9 +65,9 @@ class Flock {
 
   static std::array<double, 3> getDistancesParameters();
 
-  void setFlockSize(std::istream& in, std::ostream& out);
+  void setFlockSize();
 
-  void setFlightParameters(std::istream& in, std::ostream& out);
+  void setFlightParameters();
 
   void generateBoids();
 

@@ -52,58 +52,53 @@ FlightParameters Flock::getFlightParameters() const {
 std::array<double, 3> Flock::getDistancesParameters() {
   return {d, prey_ds_, predator_ds};
 }
-void Flock::setFlockSize(std::istream& in, std::ostream& out) {
-  out << "\nQuante prede vuoi? ";
+
+void Flock::setFlockSize() {
+  std::cout << "Enter the number of prey to simulate: ";
   std::size_t prey;
-  in >> prey;
-  if (in.fail() || prey == 0) {
-    out << "Input non valido. Uso numero di default.\n";
+  std::cin >> prey;
+  if (std::cin.fail() || prey == 0 || prey > 1000) {
+    std::cout << "\nInvalid input, using default value.";
     prey = 200;
-    in.clear();
-    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
   }
-
-  out << "Quanti predatori vuoi? ";
+  std::cout << "\nEnter the number of predators to simulate: ";
   std::size_t predators;
-  in >> predators;
-  if (in.fail()) {
-    out << "Input non valido. Uso numero di default.\n";
+  std::cin >> predators;
+  if (std::cin.fail() || predators > 100) {
+    std::cout << "\n Invalid input, using default value.";
     predators = 5;
-    in.clear();
-    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
   }
-
   n_prey_ = prey;
   n_predators_ = predators;
 }
 
-void Flock::setFlightParameters(std::istream& in, std::ostream& out) {
+void Flock ::setFlightParameters() {
+  std::cout << "\nWould you like to customize the parameters of the simulation?"
+               "\n (Y/n)";
   char statement;
-  out << "\nWould you like to customize the parameters of the simulation? "
-         "(Y/n) ";
-  in >> statement;
-
-  if (in.fail() || (statement != 'Y' && statement != 'y' && statement != 'N' &&
-                    statement != 'n')) {
-    out << "\nInput non valido. Uso i parametri di default (s=0.1, a=0.1, "
-           "c=0.004)\n";
-    return;  // rimane con i parametri di default
-  }
-
-  if (statement == 'Y' || statement == 'y') {
-    double s, a, c;
-    out << "Enter separation coefficient: ";
-    in >> s;
-    out << "Enter alignment coefficient: ";
-    in >> a;
-    out << "Enter cohesion coefficient: ";
-    in >> c;
-
-    if (in.fail()) {
-      out << "Input non valido. Uso i parametri di default (s=0.1, a=0.1, "
-             "c=0.004)\n";
-      in.clear();  // reset stream error
-      in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  std::cin >> statement;
+  if (std::cin.fail() || (statement != 'Y' && statement != 'y' &&
+                          statement != 'N' && statement != 'n')) {
+    std::cout << "\nInvalid input, using default values.\n s=0.1\n a=0.1\n "
+                 "c=0.004\n r=0.6\n ch=0.008";
+    return;
+  } else if (statement == 'Y' || statement == 'y') {
+    double s;
+    std::cout << "Enter separation coefficient: ";
+    std::cin >> s;
+    double a;
+    std::cout << "Enter alignment coefficient: ";
+    std::cin >> a;
+    double c;
+    std::cout << "Enter cohesion coefficient: ";
+    std::cin >> c;
+    if (std::cin.fail()) {
+      std::cout << "\nInvalid input, using default values.\n s=0.1\n a=0.1\n "
+                   "c=0.004\n r=0.6\nch=0.008";
       return;
     }
 
@@ -114,7 +109,8 @@ void Flock::setFlightParameters(std::istream& in, std::ostream& out) {
     flight_parameters_.repulsion = s * 6;
     flight_parameters_.chase = c * 2;
   } else {
-    out << "Using default parameters (s=0.1, a=0.1, c=0.004)\n";
+    std::cout << "\nUsing default values.\n s=0.1\n a=0.1\n c=0.004\n "
+                 "r=0.6\n ch=0.008";
   }
 }
 
@@ -154,7 +150,7 @@ std::vector<std::shared_ptr<boid::Boid>> Flock::nearPrey(
               : std::static_pointer_cast<boid::Boid>(predator_flock_[i]);
 
   for (std::size_t j = 0; j < n_prey_; ++j) {
-    if (is_prey && i == j) continue;  // non considerare se stesso
+    if (is_prey && i == j) continue;
 
     const auto& other = prey_flock_[j];
 
@@ -183,7 +179,7 @@ std::vector<std::shared_ptr<boid::Boid>> Flock::nearPredators(
               : std::static_pointer_cast<boid::Boid>(predator_flock_[i]);
 
   for (std::size_t j = 0; j < n_predators_; ++j) {
-    if (!is_prey && i == j) continue;  // non considerare se stesso
+    if (!is_prey && i == j) continue;
 
     const auto& other = predator_flock_[j];
 
