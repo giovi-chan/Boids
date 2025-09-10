@@ -1,18 +1,16 @@
-// #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
-// #include <cmath>
+#include <cmath>
 
-// #include "../doctest.h"
+#include "../doctest.h"
 // #include "../include/boid.hpp"
-// #include "../include/constants.hpp"
-// #include "../include/point.hpp"
+// #include "../include/graphics.hpp"
+#include "../include/point.hpp"
 
 // std::array<double, 3> distanceParams = flock::Flock::getDistancesParams();
-
 // double d{distanceParams[0]};
 // double prey_ds{distanceParams[1]};
 // double predator_ds{distanceParams[2]};
-
 // constexpr double preyMaxSpeed{5.};
 // constexpr double predatorMaxSpeed{4.};
 
@@ -22,141 +20,128 @@
 // ///////////////////////////////TESTING POINT CLASS
 // ////////////////////////////////////////////////////////
 
-// TEST_CASE("testing Point class") {
-//   point::Point p0;
-//   point::Point p1(1., 2.);
-//   point::Point p2(-3., 5.);
+TEST_CASE("testing Point class") {
+  point::Point p0;
+  point::Point p1(1., 2.);
+  point::Point p2(-3., 5.);
 
-//   SUBCASE("testing getters") {
-//     CHECK(p0.get_x() == 0.);
-//     CHECK(p0.get_y() == 0.);
-//     CHECK(p1.get_x() == 1.);
-//     CHECK(p1.get_y() == 2.);
-//   }
-//   SUBCASE("testing distance methods") {
-//     CHECK(p0.distance() == doctest::Approx(0.00000000));
-//     CHECK(p2.distance() == doctest::Approx(5.83095189));
-//     CHECK(p0.distance(p1) == doctest::Approx(2.23606798));
-//     CHECK(p1.distance(p0) == doctest::Approx(2.23606798));
-//     CHECK(p1.distance(p2) == doctest::Approx(5.00000000));
-//     CHECK(p2.distance(p1) == doctest::Approx(5.00000000));
-//   }
-//   SUBCASE("testing toroidal distance") {
-//     point::Point q1(330., 120.);
-//     point::Point q2(1010., 250.);
-//     point::Point q3(90., 560.);
-//     point::Point q4(940., 730.);
-
-//     CHECK(point::toroidal_distance(p0) == doctest::Approx(0.00000000));
-//     CHECK(point::toroidal_distance(q1) == doctest::Approx(351.140997));
-//     CHECK(point::toroidal_distance(q2) == doctest::Approx(314.006369));
-//     CHECK(point::toroidal_distance(q3) == doctest::Approx(256.320112));
-//     CHECK(point::toroidal_distance(q4) == doctest::Approx(269.258240));
-
-//     CHECK(point::toroidal_distance(p0, q4) == doctest::Approx(269.258240));
-//     CHECK(point::toroidal_distance(q2, p0) == doctest::Approx(314.006369));
-//     CHECK(point::toroidal_distance(q1, q1) == doctest::Approx(0.00000000));
-//     CHECK(point::toroidal_distance(q1, q2) == doctest::Approx(536.003731));
-//     CHECK(point::toroidal_distance(q1, q3) == doctest::Approx(432.666153));
-//     CHECK(point::toroidal_distance(q1, q4) == doctest::Approx(619.838689));
-//     CHECK(point::toroidal_distance(q2, q3) == doctest::Approx(417.731971));
-//     CHECK(point::toroidal_distance(q2, q4) == doctest::Approx(327.566787));
-//     CHECK(point::toroidal_distance(q3, q4) == doctest::Approx(389.101529));
-//     CHECK(point::toroidal_distance(q4, q1) == doctest::Approx(619.838689));
-//   }
-
-//   SUBCASE("testing relative_position") {
-//     point::Point q2(1010., 250.);
-//     point::Point q3(90., 560.);
-//     point::Point q4(940., 730.);
-
-//     CHECK(point::relative_position(q2, q3).get_x() == 280.);
-//     CHECK(point::relative_position(q2, q3).get_y() == 310.);
-//     CHECK(point::relative_position(q2, q4).get_x() == -70.);
-//     CHECK(point::relative_position(q2, q4).get_y() == -320.);
-//     CHECK(point::relative_position(q3, q2).get_x() == -280.);
-//     CHECK(point::relative_position(q3, q2).get_y() == -310.);
-//     CHECK(point::relative_position(q3, q4).get_x() == -350.);
-//     CHECK(point::relative_position(q3, q4).get_y() == 170.);
-//   }
-
-//   SUBCASE("testing operator +") {
-//     point::Point sum1 = p0 + p1;
-//     point::Point sum2 = p0 + p2;
-//     point::Point sum3 = p1 + p2;
-//     point::Point sum4 = p2 + p1;
-//     CHECK(sum1.get_x() == doctest::Approx(1.00000000));
-//     CHECK(sum1.get_y() == doctest::Approx(2.00000000));
-//     CHECK(sum2.get_x() == doctest::Approx(-3.00000000));
-//     CHECK(sum2.get_y() == doctest::Approx(5.00000000));
-//     CHECK(sum3.get_x() == doctest::Approx(-2.00000000));
-//     CHECK(sum3.get_y() == doctest::Approx(7.00000000));
-//     CHECK(sum4.get_x() == doctest::Approx(-2.00000000));
-//     CHECK(sum4.get_y() == doctest::Approx(7.00000000));
-//   }
-
-//   SUBCASE("testing operator -") {
-//     point::Point diff1 = p0 - p1;
-//     point::Point diff2 = p2 - p0;
-//     point::Point diff3 = p1 - p2;
-//     point::Point diff3 = p2 - p1;
-//     CHECK(diff1.get_x() == doctest::Approx(-1.00000000));
-//     CHECK(diff1.get_y() == doctest::Approx(-2.00000000));
-//     CHECK(diff2.get_x() == doctest::Approx(-3.00000000));
-//     CHECK(diff2.get_y() == doctest::Approx(+5.00000000));
-//     CHECK(diff3.get_x() == doctest::Approx(+4.00000000));
-//     CHECK(diff3.get_y() == doctest::Approx(-3.00000000));
-//     CHECK(diff4.get_x() == doctest::Approx(-4.00000000));
-//     CHECK(diff4.get_y() == doctest::Approx(+3.00000000));
-//   }
-//   SUBCASE("testing operator *") {
-//     double constant0{0.};
-//     double constant1{2.};
-//     double constant2{-3.};
-//     point::Point q00 = p0 * constant0;
-//     point::Point q01 = p0 * constant1;
-//     point::Point q02 = p0 * constant2;
-//     point::Point q20 = p2 * constant0;
-//     point::Point q21 = p2 * constant1;
-//     point::Point q22 = p2 * constant2;
-//     CHECK(q00.get_x() == doctest::Approx(0.00000000));
-//     CHECK(q00.get_y() == doctest::Approx(0.00000000));
-//     CHECK(q01.get_x() == doctest::Approx(0.00000000));
-//     CHECK(q01.get_y() == doctest::Approx(0.00000000));
-//     CHECK(q02.get_x() == doctest::Approx(0.00000000));
-//     CHECK(q02.get_y() == doctest::Approx(0.00000000));
-//     CHECK(q20.get_x() == doctest::Approx(0.00000000));
-//     CHECK(q20.get_y() == doctest::Approx(0.00000000));
-//     CHECK(q21.get_x() == doctest::Approx(-6.00000000));
-//     CHECK(q21.get_y() == doctest::Approx(10.00000000));
-//     CHECK(q22.get_x() == doctest::Approx(9.00000000));
-//     CHECK(q22.get_y() == doctest::Approx(-15.00000000));
-//   }
-
-//   SUBCASE("testing operator /") {
-//     double constant1{2.};
-//     double constant2{-3.};
-//     point::Point q11 = p1 / constant1;
-//     point::Point q12 = p1 / constant2;
-//     point::Point q21 = p2 / constant1;
-//     point::Point q22 = p2 / constant2;
-
-//     CHECK(q11.get_x() == doctest::Approx(0.5));
-//     CHECK(q11.get_y() == doctest::Approx(1.0));
-//     CHECK(q12.get_x() == doctest::Approx(-1.0 / 3));
-//     CHECK(q12.get_y() == doctest::Approx(-2.0 / 3));
-//     CHECK(q21.get_x() == doctest::Approx(-1.5));
-//     CHECK(q21.get_y() == doctest::Approx(2.5));
-//     CHECK(q22.get_x() == doctest::Approx(1.0));
-//     CHECK(q22.get_y() == doctest::Approx(-5.0 / 3));
-//   }
-//   SUBCASE("testing operator ==") {
-//     point::Point p3(1., 2.);
-//     CHECK((p1 == p3) == true);
-//     CHECK((p1 == p2) == false);
-//     CHECK((p2 == p3) == false);
-//   }
-// }
+  SUBCASE("testing getters") {
+    CHECK(p0.getX() == 0.);
+    CHECK(p0.getY() == 0.);
+    CHECK(p1.getX() == 1.);
+    CHECK(p1.getY() == 2.);
+  }
+  SUBCASE("testing distance methods") {
+    CHECK(p0.distance() == doctest::Approx(0.00000000));
+    CHECK(p2.distance() == doctest::Approx(5.83095189));
+    CHECK(p0.distance(p1) == doctest::Approx(2.23606798));
+    CHECK(p1.distance(p0) == doctest::Approx(2.23606798));
+    CHECK(p1.distance(p2) == doctest::Approx(5.00000000));
+    CHECK(p2.distance(p1) == doctest::Approx(5.00000000));
+  }
+  SUBCASE("testing toroidalDistance") {
+    point::Point q1(330., 120.);
+    point::Point q2(1010., 250.);
+    point::Point q3(90., 560.);
+    point::Point q4(940., 730.);
+    CHECK(point::toroidalDistance(p0, q4) == doctest::Approx(465.295605));
+    CHECK(point::toroidalDistance(q2, p0) == doctest::Approx(463.249393));
+    CHECK(point::toroidalDistance(q1, q1) == doctest::Approx(0.00000000));
+    CHECK(point::toroidalDistance(q1, q2) == doctest::Approx(692.314957));
+    CHECK(point::toroidalDistance(q1, q3) == doctest::Approx(432.666153));
+    CHECK(point::toroidalDistance(q1, q4) == doctest::Approx(638.905314));
+    CHECK(point::toroidalDistance(q2, q3) == doctest::Approx(571.401785));
+    CHECK(point::toroidalDistance(q2, q4) == doctest::Approx(327.566787));
+    CHECK(point::toroidalDistance(q3, q4) == doctest::Approx(575.673519));
+    CHECK(point::toroidalDistance(q4, q1) == doctest::Approx(638.905314));
+  }
+  SUBCASE("testing relativePosition") {
+    point::Point q2(1010., 250.);
+    point::Point q3(90., 560.);
+    point::Point q4(940., 730.);
+    CHECK(point::relativePosition(q2, q3).getX() == 480.);
+    CHECK(point::relativePosition(q2, q3).getY() == 310.);
+    CHECK(point::relativePosition(q2, q4).getX() == -70.);
+    CHECK(point::relativePosition(q2, q4).getY() == -320.);
+    CHECK(point::relativePosition(q3, q2).getX() == -480.);
+    CHECK(point::relativePosition(q3, q2).getY() == -310.);
+    CHECK(point::relativePosition(q3, q4).getX() == -550.);
+    CHECK(point::relativePosition(q3, q4).getY() == 170.);
+  }
+  SUBCASE("testing operator +") {
+    point::Point sum1 = p0 + p1;
+    point::Point sum2 = p0 + p2;
+    point::Point sum3 = p1 + p2;
+    point::Point sum4 = p2 + p1;
+    CHECK(sum1.getX() == doctest::Approx(1.00000000));
+    CHECK(sum1.getY() == doctest::Approx(2.00000000));
+    CHECK(sum2.getX() == doctest::Approx(-3.00000000));
+    CHECK(sum2.getY() == doctest::Approx(5.00000000));
+    CHECK(sum3.getX() == doctest::Approx(-2.00000000));
+    CHECK(sum3.getY() == doctest::Approx(7.00000000));
+    CHECK(sum4.getX() == doctest::Approx(-2.00000000));
+    CHECK(sum4.getY() == doctest::Approx(7.00000000));
+  }
+  SUBCASE("testing operator -") {
+    point::Point diff1 = p0 - p1;
+    point::Point diff2 = p2 - p0;
+    point::Point diff3 = p1 - p2;
+    point::Point diff4 = p2 - p1;
+    CHECK(diff1.getX() == doctest::Approx(-1.00000000));
+    CHECK(diff1.getY() == doctest::Approx(-2.00000000));
+    CHECK(diff2.getX() == doctest::Approx(-3.00000000));
+    CHECK(diff2.getY() == doctest::Approx(+5.00000000));
+    CHECK(diff3.getX() == doctest::Approx(+4.00000000));
+    CHECK(diff3.getY() == doctest::Approx(-3.00000000));
+    CHECK(diff4.getX() == doctest::Approx(-4.00000000));
+    CHECK(diff4.getY() == doctest::Approx(+3.00000000));
+  }
+  SUBCASE("testing operator *") {
+    double constant0{0.};
+    double constant1{2.};
+    double constant2{-3.};
+    point::Point q00 = p0 * constant0;
+    point::Point q01 = p0 * constant1;
+    point::Point q02 = p0 * constant2;
+    point::Point q20 = p2 * constant0;
+    point::Point q21 = p2 * constant1;
+    point::Point q22 = p2 * constant2;
+    CHECK(q00.getX() == doctest::Approx(0.00000000));
+    CHECK(q00.getY() == doctest::Approx(0.00000000));
+    CHECK(q01.getX() == doctest::Approx(0.00000000));
+    CHECK(q01.getY() == doctest::Approx(0.00000000));
+    CHECK(q02.getX() == doctest::Approx(0.00000000));
+    CHECK(q02.getY() == doctest::Approx(0.00000000));
+    CHECK(q20.getX() == doctest::Approx(0.00000000));
+    CHECK(q20.getY() == doctest::Approx(0.00000000));
+    CHECK(q21.getX() == doctest::Approx(-6.00000000));
+    CHECK(q21.getY() == doctest::Approx(10.00000000));
+    CHECK(q22.getX() == doctest::Approx(9.00000000));
+    CHECK(q22.getY() == doctest::Approx(-15.00000000));
+  }
+  SUBCASE("testing operator /") {
+    double constant1{2.};
+    double constant2{-3.};
+    point::Point q11 = p1 / constant1;
+    point::Point q12 = p1 / constant2;
+    point::Point q21 = p2 / constant1;
+    point::Point q22 = p2 / constant2;
+    CHECK(q11.getX() == doctest::Approx(0.5));
+    CHECK(q11.getY() == doctest::Approx(1.0));
+    CHECK(q12.getX() == doctest::Approx(-1.0 / 3));
+    CHECK(q12.getY() == doctest::Approx(-2.0 / 3));
+    CHECK(q21.getX() == doctest::Approx(-1.5));
+    CHECK(q21.getY() == doctest::Approx(2.5));
+    CHECK(q22.getX() == doctest::Approx(1.0));
+    CHECK(q22.getY() == doctest::Approx(-5.0 / 3));
+  }
+  SUBCASE("testing operator ==") {
+    point::Point p3(1., 2.);
+    CHECK((p1 == p3) == true);
+    CHECK((p1 == p2) == false);
+    CHECK((p2 == p3) == false);
+  }
+}
 
 // ///////////////TESTING BOID CLASS//////////////////////////////
 
@@ -165,30 +150,30 @@
 
 // const point::Point pos2 =
 //     pos1 + 0.8 * d * 0.5 *
-//                point::Point(vel1.get_x() - sqrt(3) * vel1.get_y(),
-//                             sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                point::Point(vel1.getX() - sqrt(3) * vel1.getY(),
+//                             sqrt(3) * vel1.getX() + vel1.getY()) /
 //                vel1.distance();
 
 // const point::Point vel2(-8.5, -6.);
 
 // const point::Point pos3 =
 //     pos1 + 0.8 * d * 0.5 *
-//                point::Point(vel1.get_x() + sqrt(3) * vel1.get_y(),
-//                             -sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                point::Point(vel1.getX() + sqrt(3) * vel1.getY(),
+//                             -sqrt(3) * vel1.getX() + vel1.getY()) /
 //                / vel1.distance();
 // const point::Point vel3(-7.3, 2.5);
 
 // const point::Point pos4 =
 //     pos1 + 0.5 * b_ds * 0.5 *
-//                point::Point(vel1.get_x() - sqrt(3) * vel1.get_y(),
-//                             sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                point::Point(vel1.getX() - sqrt(3) * vel1.getY(),
+//                             sqrt(3) * vel1.getX() + vel1.getY()) /
 //                vel1.distance();
 // const point::Point vel4(-1., -2.);
 
 // const point::Point pos5 =
 //     pos1 + 0.5 * b_ds * 0.5 *
-//                point::Point(vel1.get_x() + sqrt(3) * vel1.get_y(),
-//                             -sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                point::Point(vel1.getX() + sqrt(3) * vel1.getY(),
+//                             -sqrt(3) * vel1.getX() + vel1.getY()) /
 //                vel1.distance();
 // const point::Point vel5(-5., -3.2);
 
@@ -238,16 +223,16 @@
 // }
 
 // SUBCASE("Testing separation method") {
-//   double sep1_x = -s * 0.5 * b_ds * vel1.get_x() / vel1.distance();
-//   double sep1_y = -s * 0.5 * b_ds * vel1.get_y() / vel1.distance();
+//   double sep1_x = -s * 0.5 * b_ds * vel1.getX() / vel1.distance();
+//   double sep1_y = -s * 0.5 * b_ds * vel1.getY() / vel1.distance();
 
 //   CHECK(b1.separation(s, b_ds, near_b1).getX() == doctest::Approx(sep1_x));
 //   CHECK(b1.separation(s, b_ds, near_b1).getY() == doctest::Approx(sep1_y));
 // }
 
 // SUBCASE("Testing cohesion method") {
-//   double coh1_x = c * (0.5 * b_ds + 0.8 * d) * vel1.get_x() /
-//   vel1.distance(); double coh1_y = c * (0.5 * b_ds + 0.8 * d) * vel1.get_y()
+//   double coh1_x = c * (0.5 * b_ds + 0.8 * d) * vel1.getX() /
+//   vel1.distance(); double coh1_y = c * (0.5 * b_ds + 0.8 * d) * vel1.getY()
 //   / vel1.distance();
 
 //   CHECK(b1.cohesion(c, near_b1).getX() == doctest::Approx(coh1_x));
@@ -272,8 +257,8 @@
 //   // near b1, even if it was initially intended to be applied on
 //   near_predators.
 
-//   double rep1_x = -r * (0.5 * b_ds + 0.8 * d) * vel1.get_x() /
-//   vel1.distance(); double rep1_y = -r * (0.5 * b_ds + 0.8 * d) * vel1.get_y()
+//   double rep1_x = -r * (0.5 * b_ds + 0.8 * d) * vel1.getX() /
+//   vel1.distance(); double rep1_y = -r * (0.5 * b_ds + 0.8 * d) * vel1.getY()
 //   / vel1.distance();
 
 //   CHECK(b1.repulsion(r, near_b1).getX() == doctest::Approx(rep1_x));
@@ -288,29 +273,29 @@
 //   b5.clamp(preyMinSpeed, preyMaxSpeed, v5);
 
 //   CHECK(v1.getX() ==
-//         doctest::Approx(preyMaxSpeed * vel1.get_x() / vel1.distance()));
+//         doctest::Approx(preyMaxSpeed * vel1.getX() / vel1.distance()));
 //   CHECK(v1.getY() ==
-//         doctest::Approx(preyMaxSpeed * vel1.get_y() / vel1.distance()));
+//         doctest::Approx(preyMaxSpeed * vel1.getY() / vel1.distance()));
 
 //   CHECK(v2.getX() ==
-//         doctest::Approx(preyMaxSpeed * vel2.get_x() / vel2.distance()));
+//         doctest::Approx(preyMaxSpeed * vel2.getX() / vel2.distance()));
 //   CHECK(v2.getY() ==
-//         doctest::Approx(preyMaxSpeed * vel2.get_y() / vel2.distance()));
+//         doctest::Approx(preyMaxSpeed * vel2.getY() / vel2.distance()));
 
 //   CHECK(v3.getX() ==
-//         doctest::Approx(preyMaxSpeed * vel3.get_x() / vel3.distance()));
+//         doctest::Approx(preyMaxSpeed * vel3.getX() / vel3.distance()));
 //   CHECK(v3.getY() ==
-//         doctest::Approx(preyMaxSpeed * vel3.get_y() / vel3.distance()));
+//         doctest::Approx(preyMaxSpeed * vel3.getY() / vel3.distance()));
 
 //   CHECK(v4.getX() ==
-//         doctest::Approx(preyMinSpeed * ve4.get_x() / vel4.distance()));
+//         doctest::Approx(preyMinSpeed * ve4.getX() / vel4.distance()));
 //   CHECK(v4.getY() ==
-//         doctest::Approx(preyMinSpeed * ve4.get_y() / vel4.distance()));
+//         doctest::Approx(preyMinSpeed * ve4.getY() / vel4.distance()));
 
 //   CHECK(v5.getX() ==
-//         doctest::Approx(preyMaxSpeed * vel5.get_x() / vel5.distance()));
+//         doctest::Approx(preyMaxSpeed * vel5.getX() / vel5.distance()));
 //   CHECK(v5.getY() ==
-//         doctest::Approx(preyMaxSpeed * vel5.get_y() / vel5.distance()));
+//         doctest::Approx(preyMaxSpeed * vel5.getY() / vel5.distance()));
 // }
 
 // TEST_CASE("Testing Predator class") {
@@ -323,8 +308,8 @@
 
 //   const point::Point pos6 =
 //       pos1 + 0.5 * d * 0.5 *
-//                  point::Point(vel1.get_x() - sqrt(3) * vel1.get_y(),
-//                               sqrt(3) * vel1.get_x() + vel1.get_y()) /
+//                  point::Point(vel1.getX() - sqrt(3) * vel1.getY(),
+//                               sqrt(3) * vel1.getX() + vel1.getY()) /
 //                  vel1.distance();
 //   p4.setBoid(pos6, vel4);
 
@@ -381,29 +366,29 @@
 //     p4.clamp(predatorMinSpeed, predatorMaxSpeed, v4);
 
 //     CHECK(v1.getX() ==
-//           doctest::Approx(predatorMaxSpeed * vel1.get_x() /
+//           doctest::Approx(predatorMaxSpeed * vel1.getX() /
 //           vel1.distance()));
 //     CHECK(v1.getY() ==
-//           doctest::Approx(predatorMaxSpeed * vel1.get_y() /
+//           doctest::Approx(predatorMaxSpeed * vel1.getY() /
 //           vel1.distance()));
 
 //     CHECK(v2.getX() ==
-//           doctest::Approx(predatorMaxSpeed * vel2.get_x() /
+//           doctest::Approx(predatorMaxSpeed * vel2.getX() /
 //           vel2.distance()));
 //     CHECK(v2.getY() ==
-//           doctest::Approx(predatorMaxSpeed * vel2.get_y() /
+//           doctest::Approx(predatorMaxSpeed * vel2.getY() /
 //           vel2.distance()));
 
 //     CHECK(v3.getX() ==
-//           doctest::Approx(predatorMaxSpeed * vel3.get_x() /
+//           doctest::Approx(predatorMaxSpeed * vel3.getX() /
 //           vel3.distance()));
 //     CHECK(v3.getY() ==
-//           doctest::Approx(predatorMaxSpeed * vel3.get_y() /
+//           doctest::Approx(predatorMaxSpeed * vel3.getY() /
 //           vel3.distance()));
 
 //     CHECK(v4.getX() ==
-//           doctest::Approx(predatorMinSpeed * ve4.get_x() / vel4.distance()));
+//           doctest::Approx(predatorMinSpeed * ve4.getX() / vel4.distance()));
 //     CHECK(v4.getY() ==
-//           doctest::Approx(predatorMinSpeed * ve4.get_y() / vel4.distance()));
+//           doctest::Approx(predatorMinSpeed * ve4.getY() / vel4.distance()));
 //   }
 // }

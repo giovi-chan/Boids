@@ -26,6 +26,7 @@ struct Style {
 };
 
 bool loadBackground(const std::string& filename);
+void clearBackground();
 
 std::unique_ptr<sf::RenderWindow> makeWindow(unsigned int width,
                                              unsigned int height,

@@ -84,7 +84,7 @@ void Flock ::setFlightParameters() {
   if (std::cin.fail() || (statement != 'Y' && statement != 'y' &&
                           statement != 'N' && statement != 'n')) {
     std::cout << "\nInvalid input, using default values.\n s=0.1\n a=0.1\n "
-                 "c=0.004\n r=0.6\n ch=0.008";
+                 "c=0.004\n r=0.6\nch=0.008\n";
     return;
   } else if (statement == 'Y' || statement == 'y') {
     double s;
@@ -98,7 +98,7 @@ void Flock ::setFlightParameters() {
     std::cin >> c;
     if (std::cin.fail()) {
       std::cout << "\nInvalid input, using default values.\n s=0.1\n a=0.1\n "
-                   "c=0.004\n r=0.6\nch=0.008";
+                   "c=0.004\n r=0.6\nch=0.008\n";
       return;
     }
 
@@ -110,7 +110,7 @@ void Flock ::setFlightParameters() {
     flight_parameters_.chase = c * 2;
   } else {
     std::cout << "\nUsing default values.\n s=0.1\n a=0.1\n c=0.004\n "
-                 "r=0.6\n ch=0.008";
+                 "r=0.6\nch=0.008 \n";
   }
 }
 
