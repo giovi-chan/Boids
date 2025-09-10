@@ -49,11 +49,13 @@ point::Point Boid::separation(
 
   const point::Point sum = std::accumulate(
       near.begin(), near.end(), point::Point(0., 0.),
-      [this, ds](const point::Point& acc, const std::shared_ptr<Boid>& b) {
-        if (point::toroidalDistance(position_, b->getPosition()) < ds) {
-          return acc + point::relativePosition(position_, b->getPosition());
+      [this, ds](const point::Point& accumulate,
+                 const std::shared_ptr<Boid>& boid) {
+        if (point::toroidalDistance(position_, boid->getPosition()) < ds) {
+          return accumulate +
+                 point::relativePosition(position_, boid->getPosition());
         }
-        return acc;
+        return accumulate;
       });
 
   return sum * (-s);
@@ -72,8 +74,8 @@ point::Point Prey::alignment(
 
   const point::Point sum = std::accumulate(
       near_prey.begin(), near_prey.end(), point::Point(0., 0.),
-      [](const point::Point& acc, const std::shared_ptr<Boid>& b) {
-        return acc + b->getVelocity();
+      [](const point::Point& accumulate, const std::shared_ptr<Boid>& boid) {
+        return accumulate + boid->getVelocity();
       });
 
   return (sum / static_cast<double>(near_prey.size()) - velocity_) * a;
@@ -84,11 +86,13 @@ point::Point Prey::cohesion(
   assert(c >= 0 && c <= 1);
   if (near_prey.empty()) return {0., 0.};
 
-  const point::Point sum = std::accumulate(
-      near_prey.begin(), near_prey.end(), point::Point(0., 0.),
-      [this](const point::Point& acc, const std::shared_ptr<Boid>& b) {
-        return acc + point::relativePosition(position_, b->getPosition());
-      });
+  const point::Point sum =
+      std::accumulate(near_prey.begin(), near_prey.end(), point::Point(0., 0.),
+                      [this](const point::Point& accumulate,
+                             const std::shared_ptr<Boid>& boid) {
+                        return accumulate + point::relativePosition(
+                                                position_, boid->getPosition());
+                      });
 
   return (sum / static_cast<double>(near_prey.size())) * c;
 }
@@ -101,8 +105,10 @@ point::Point Prey::repulsion(
 
   const point::Point sum = std::accumulate(
       near_predators.begin(), near_predators.end(), point::Point(0., 0.),
-      [this](const point::Point& acc, const std::shared_ptr<Boid>& b) {
-        return acc + point::relativePosition(position_, b->getPosition());
+      [this](const point::Point& accumulate,
+             const std::shared_ptr<Boid>& boid) {
+        return accumulate +
+               point::relativePosition(position_, boid->getPosition());
       });
 
   return sum * (-r);
@@ -135,11 +141,13 @@ point::Point Predator::chase(
   assert(ch >= 0 && ch <= 1);
   if (near_prey.empty()) return {0., 0.};
 
-  const point::Point sum = std::accumulate(
-      near_prey.begin(), near_prey.end(), point::Point(0., 0.),
-      [this](const point::Point& acc, const std::shared_ptr<Boid>& b) {
-        return acc + point::relativePosition(position_, b->getPosition());
-      });
+  const point::Point sum =
+      std::accumulate(near_prey.begin(), near_prey.end(), point::Point(0., 0.),
+                      [this](const point::Point& accumulate,
+                             const std::shared_ptr<Boid>& boid) {
+                        return accumulate + point::relativePosition(
+                                                position_, boid->getPosition());
+                      });
 
   return (sum / static_cast<double>(near_prey.size())) * ch;
 }

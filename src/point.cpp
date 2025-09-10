@@ -21,9 +21,9 @@ double Point::distance(Point const& other) const {
                    (y_ - other.getY()) * (y_ - other.getY()));
 }
 
-Point& Point::operator+=(const Point& a) {
-  x_ += a.getX();
-  y_ += a.getY();
+Point& Point::operator+=(const Point& other) {
+  x_ += other.getX();
+  y_ += other.getY();
   return *this;
 }
 

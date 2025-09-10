@@ -24,8 +24,8 @@ int main() {
   }
 
   sf::RectangleShape statsPanel;
-  statsPanel.setSize(sf::Vector2f(250.f, 120.f));    // larghezza x altezza
-  statsPanel.setFillColor(sf::Color(0, 0, 0, 150));  // nero trasparente
+  statsPanel.setSize(sf::Vector2f(220.f, 85.f));     // larghezza x altezza
+  statsPanel.setFillColor(sf::Color(0, 0, 0, 130));  // nero trasparente
   statsPanel.setPosition(10.f, 10.f);  // posizione in alto a sinistra
 
   sf::Font font;
@@ -54,19 +54,26 @@ int main() {
 
     graphics::drawFrame(*window, flock, style);
 
-    auto stats = flock.statistics();
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(2);
-    oss << "Mean dist: " << stats.mean_distance << "\n"
-        << "Dev dist: " << stats.dev_distance << "\n"
-        << "Mean speed: " << stats.mean_velocity << "\n"
-        << "Dev speed: " << stats.dev_velocity;
-    statsText.setString(oss.str());
+    if (flock.getPreyNum() > 2) {
+      auto stats = flock.statistics();
+      std::ostringstream oss;
+      oss << std::fixed << std::setprecision(2);
+      oss << "Mean dist: " << stats.mean_distance << "\n"
+          << "Dev dist: " << stats.dev_distance << "\n"
+          << "Mean speed: " << stats.mean_velocity << "\n"
+          << "Dev speed: " << stats.dev_velocity;
+      statsText.setString(oss.str());
 
-    window->draw(statsPanel);
-    window->draw(statsText);
+      window->draw(statsPanel);
+      window->draw(statsText);
+    } else {
+      statsText.setString("Not enough prey to run statistics");
+      window->draw(statsPanel);
+      window->draw(statsText);
+    }
 
     window->display();
   }
+
   return 0;
 }

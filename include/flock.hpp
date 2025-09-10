@@ -42,16 +42,16 @@ class Flock {
   FlightParameters flight_parameters_;
   SpeedLimits speed_limits_;
 
-  static constexpr double d = 75.;                // radius for near boids
-  static constexpr double prey_ds_ = 20.;         // separation radius for prey
-  static constexpr double predator_ds = d * 0.5;  // and for predators
+  static constexpr double d_ = 75.;        // radius for near boids
+  static constexpr double prey_ds_ = 20.;  // separation radius for prey
+  static constexpr double predator_ds_ = d_ * 0.5;  // and for predators
 
  public:
-  Flock(std::size_t nPrey, std::size_t nPredators);
+  Flock(std::size_t n_prey, std::size_t n_predators);
 
   Flock(const std::vector<std::shared_ptr<boid::Prey>>& prey,
         const std::vector<std::shared_ptr<boid::Predator>>& predators,
-        const SpeedLimits& speed_limits_);
+        const SpeedLimits& speed_limits);
 
   std::size_t getPreyNum() const;
   std::size_t getPredatorsNum() const;
