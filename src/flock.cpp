@@ -246,7 +246,7 @@ std::array<point::Point, 2> Flock::updateBoid(std::size_t i, bool is_prey,
                               speed_limits_.predator_max, vel);
   }
 
-  pos += vel * dt;
+  pos += dt * vel;
 
   if (pos.getX() < 0) {
     pos.setX(pos.getX() + graphics::window_width);

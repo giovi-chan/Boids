@@ -7,16 +7,16 @@
 #include "../include/graphics.hpp"
 #include "../include/point.hpp"
 
-std::array<double, 3> distanceParameters =
+const std::array<double, 3> distance_parameters =
     flock::Flock::getDistancesParameters();
-double d{distanceParameters[0]};
-double prey_ds_{distanceParameters[1]};
-double predator_ds_{distanceParameters[2]};
+const double d_{distance_parameters[0]};
+const double prey_ds_{distance_parameters[1]};
+const double predator_ds_{distance_parameters[2]};
 
-constexpr double preyMaxSpeed{5.};
-constexpr double predatorMaxSpeed{4.};
-constexpr double preyMinSpeed{3.};
-constexpr double predatorMinSpeed{2.5};
+constexpr double prey_max_speed{5.};
+constexpr double predator_max_speed{4.};
+constexpr double prey_min_speed{3.};
+constexpr double predator_min_speed{2.5};
 
 //////////////////TESTING POINT CLASS///////////////////////////////////
 
@@ -40,7 +40,7 @@ TEST_CASE("testing Point class") {
     CHECK(p0.getY() == doctest::Approx(-4.2));
   }
 
-  SUBCASE("testing distance methods") {
+  SUBCASE("testing distance method") {
     CHECK(p0.distance() == doctest::Approx(0.00000000));
     CHECK(p2.distance() == doctest::Approx(5.83095189));
     CHECK(p0.distance(p1) == doctest::Approx(2.23606798));
@@ -110,12 +110,12 @@ TEST_CASE("testing Point class") {
     double constant0{0.};
     double constant1{2.};
     double constant2{-3.};
-    point::Point q00 = p0 * constant0;
-    point::Point q01 = p0 * constant1;
-    point::Point q02 = p0 * constant2;
-    point::Point q20 = p2 * constant0;
-    point::Point q21 = p2 * constant1;
-    point::Point q22 = p2 * constant2;
+    point::Point q00 = constant0 * p0;
+    point::Point q01 = constant1 * p0;
+    point::Point q02 = constant2 * p0;
+    point::Point q20 = constant0 * p2;
+    point::Point q21 = constant1 * p2;
+    point::Point q22 = constant2 * p2;
     CHECK(q00.getX() == doctest::Approx(0.00000000));
     CHECK(q00.getY() == doctest::Approx(0.00000000));
     CHECK(q01.getX() == doctest::Approx(0.00000000));
@@ -158,43 +158,44 @@ TEST_CASE("testing Point class") {
 const point::Point pos1(3., -2.);
 const point::Point vel1(5., -1.);
 const point::Point pos2 =
-    pos1 + 0.8 * d * 0.5 *
+    pos1 + 0.8 * d_ * 0.5 *
                point::Point(vel1.getX() - std::sqrt(3) * vel1.getY(),
                             std::sqrt(3) * vel1.getX() + vel1.getY()) /
                vel1.distance();
 const point::Point vel2(-8.5, -6.);
 const point::Point pos3 =
-    pos1 + 0.8 * d * 0.5 *
+    pos1 + 0.8 * d_ * 0.5 *
                point::Point(vel1.getX() + std::sqrt(3) * vel1.getY(),
                             -std::sqrt(3) * vel1.getX() + vel1.getY()) /
-               / vel1.distance();
+               vel1.distance();
 const point::Point vel3(-7.3, 2.5);
 const point::Point pos4 =
-    pos1 + 0.5 * prey_ds * 0.5 *
+    pos1 + 0.5 * prey_ds_ * 0.5 *
                point::Point(vel1.getX() - std::sqrt(3) * vel1.getY(),
                             std::sqrt(3) * vel1.getX() + vel1.getY()) /
                vel1.distance();
 const point::Point vel4(-1., -2.);
 const point::Point pos5 =
-    pos1 + 0.5 * prey_ds * 0.5 *
+    pos1 + 0.5 * prey_ds_ * 0.5 *
                point::Point(vel1.getX() + std::sqrt(3) * vel1.getY(),
                             -std::sqrt(3) * vel1.getX() + vel1.getY()) /
                vel1.distance();
 const point::Point vel5(-5., -3.2);
 
 TEST_CASE("Testing Prey class") {
-  double s{0.1};
-  double a{0.1};
-  double c{0.004};
-  double r{s * 6};
-  const double x = pos1.getX();
-  const double y = pos1.getY();
+  const double s{0.1};
+  const double a{0.1};
+  const double c{0.004};
+  const double r{s * 6};
+  boid::Prey b0;
   boid::Prey b1(pos1, vel1);
   boid::Prey b2(pos2, vel2);
   boid::Prey b3(pos3, vel3);
   boid::Prey b4(pos4, vel4);
   boid::Prey b5;
   b5.setBoid(pos5, vel5);
+
+  point::Point v0 = b0.getVelocity();
   point::Point v1 = vel1;
   point::Point v2 = vel2;
   point::Point v3 = vel3;
@@ -204,10 +205,9 @@ TEST_CASE("Testing Prey class") {
   std::vector<std::shared_ptr<boid::Boid>> near_b1{
       std::make_shared<boid::Prey>(b2), std::make_shared<boid::Prey>(b3),
       std::make_shared<boid::Prey>(b4), std::make_shared<boid::Prey>(b5)};
+  std::vector<std::shared_ptr<boid::Boid>> near_b1_void;
 
   SUBCASE("Testing getters") {
-  boid:
-    Prey b0;
     CHECK(b0.getPosition() == point::Point(0., 0.));
     CHECK(b0.getVelocity() == point::Point(0., 0.));
     CHECK(b1.getPosition() == point::Point(3., -2.));
@@ -219,164 +219,196 @@ TEST_CASE("Testing Prey class") {
     CHECK(b5.getPosition().getY() == doctest::Approx(pos5.getY()));
     CHECK(b5.getVelocity() == point::Point(-5., -3.2));
   }
-
-  SUBCASE("Testing separation method") {
-    double sep1_x = -s * 0.5 * b_ds * vel1.getX() / vel1.distance();
-    double sep1_y = -s * 0.5 * b_ds * vel1.getY() / vel1.distance();
-    CHECK(b1.separation(s, b_ds, near_b1).getX() == doctest::Approx(sep1_x));
-    CHECK(b1.separation(s, b_ds, near_b1).getY() == doctest::Approx(sep1_y));
+  SUBCASE("Testing angle method") {
+    CHECK(b0.angle(b1) == doctest::Approx(0.00000000));
+    CHECK(b1.angle(b1) == doctest::Approx(0.00000000));
+    CHECK(b1.angle(b2) == doctest::Approx(1.04719755));
+    CHECK(b1.angle(b3) == doctest::Approx(-1.04719755));
   }
 
-  SUBCASE("Testing cohesion method") {
-    double coh1_x = c * (0.5 * b_ds + 0.8 * d) * vel1.getX() / vel1.distance();
-    double coh1_y = c * (0.5 * b_ds + 0.8 * d) * vel1.getY() / vel1.distance();
-    CHECK(b1.cohesion(c, near_b1).getX() == doctest::Approx(coh1_x));
-    CHECK(b1.cohesion(c, near_b1).getY() == doctest::Approx(coh1_y));
+  SUBCASE("Testing separation method") {
+    const double sep1_x = -s * 0.5 * prey_ds_ * vel1.getX() / vel1.distance();
+    const double sep1_y = -s * 0.5 * prey_ds_ * vel1.getY() / vel1.distance();
+    CHECK(b1.separation(s, prey_ds_, near_b1_void).getX() ==
+          doctest::Approx(0.00000000));
+    CHECK(b1.separation(s, prey_ds_, near_b1_void).getY() ==
+          doctest::Approx(0.00000000));
+    CHECK(b1.separation(s, prey_ds_, near_b1).getX() ==
+          doctest::Approx(sep1_x));
+    CHECK(b1.separation(s, prey_ds_, near_b1).getY() ==
+          doctest::Approx(sep1_y));
   }
 
   SUBCASE("Testing alignment method") {
-    double al1_x =
+    CHECK(b1.alignment(a, near_b1_void).getX() == doctest::Approx(0.00000000));
+    CHECK(b1.alignment(a, near_b1_void).getY() == doctest::Approx(0.00000000));
+    const double al1_x =
         a * ((vel2.getX() + vel3.getX() + vel4.getX() + vel5.getX()) / 4. - 5.);
-    double al1_y =
+    const double al1_y =
         a * ((vel2.getY() + vel3.getY() + vel4.getY() + vel5.getY()) / 4. + 1.);
+
     CHECK(b1.alignment(a, near_b1).getX() == doctest::Approx(al1_x));
     CHECK(b1.alignment(a, near_b1).getY() == doctest::Approx(al1_y));
+  }
+
+  SUBCASE("Testing cohesion method") {
+    CHECK(b1.cohesion(c, near_b1_void).getX() == doctest::Approx(0.00000000));
+    CHECK(b1.cohesion(c, near_b1_void).getX() == doctest::Approx(0.00000000));
+
+    const double coh1_x =
+        c * (0.5 * prey_ds_ + 0.8 * d_) / 4 * vel1.getX() / vel1.distance();
+    const double coh1_y =
+        c * (0.5 * prey_ds_ + 0.8 * d_) / 4 * vel1.getY() / vel1.distance();
+    CHECK(b1.cohesion(c, near_b1).getX() == doctest::Approx(coh1_x));
+    CHECK(b1.cohesion(c, near_b1).getX() == doctest::Approx(coh1_x));
+    CHECK(b1.cohesion(c, near_b1).getX() == doctest::Approx(coh1_x));
+    CHECK(b1.cohesion(c, near_b1).getY() == doctest::Approx(coh1_y));
   }
 
   SUBCASE("Testing repulsion method") {
     // here we apply boid::Prey::repulsion on near_b1, which identifies the
     // prey near b1, even if it was initially intended to be applied on
     // near_predators.
-    double rep1_x = -r * (0.5 * b_ds + 0.8 * d) * vel1.getX() / vel1.distance();
-    double rep1_y = -r * (0.5 * b_ds + 0.8 * d) * vel1.getY() / vel1.distance();
+    CHECK(b1.repulsion(r, near_b1_void).getX() == doctest::Approx(0.00000000));
+    CHECK(b1.repulsion(r, near_b1_void).getY() == doctest::Approx(0.00000000));
+    const double rep1_x =
+        -r * (0.5 * prey_ds_ + 0.8 * d_) * vel1.getX() / vel1.distance();
+    const double rep1_y =
+        -r * (0.5 * prey_ds_ + 0.8 * d_) * vel1.getY() / vel1.distance();
     CHECK(b1.repulsion(r, near_b1).getX() == doctest::Approx(rep1_x));
     CHECK(b1.repulsion(r, near_b1).getY() == doctest::Approx(rep1_y));
   }
 
   SUBCASE("Testing clamp method") {
-    b1.clamp(preyMinSpeed, preyMaxSpeed, v1);
-    b2.clamp(preyMinSpeed, preyMaxSpeed, v2);
-    b3.clamp(preyMinSpeed, preyMaxSpeed, v3);
-    b4.clamp(preyMinSpeed, preyMaxSpeed, v4);
-    b5.clamp(preyMinSpeed, preyMaxSpeed, v5);
+    b0.clamp(prey_min_speed, prey_max_speed, v0);
+    b1.clamp(prey_min_speed, prey_max_speed, v1);
+    b2.clamp(prey_min_speed, prey_max_speed, v2);
+    b3.clamp(prey_min_speed, prey_max_speed, v3);
+    b4.clamp(prey_min_speed, prey_max_speed, v4);
+    b5.clamp(prey_min_speed, prey_max_speed, v5);
+
+    CHECK(v0.getX() == doctest::Approx(prey_min_speed));
+    CHECK(v0.getY() == doctest::Approx(0.00000000));
     CHECK(v1.getX() ==
-          doctest::Approx(preyMaxSpeed * vel1.getX() / vel1.distance()));
+          doctest::Approx(prey_max_speed * vel1.getX() / vel1.distance()));
     CHECK(v1.getY() ==
-          doctest::Approx(preyMaxSpeed * vel1.getY() / vel1.distance()));
+          doctest::Approx(prey_max_speed * vel1.getY() / vel1.distance()));
     CHECK(v2.getX() ==
-          doctest::Approx(preyMaxSpeed * vel2.getX() / vel2.distance()));
+          doctest::Approx(prey_max_speed * vel2.getX() / vel2.distance()));
     CHECK(v2.getY() ==
-          doctest::Approx(preyMaxSpeed * vel2.getY() / vel2.distance()));
+          doctest::Approx(prey_max_speed * vel2.getY() / vel2.distance()));
     CHECK(v3.getX() ==
-          doctest::Approx(preyMaxSpeed * vel3.getX() / vel3.distance()));
+          doctest::Approx(prey_max_speed * vel3.getX() / vel3.distance()));
     CHECK(v3.getY() ==
-          doctest::Approx(preyMaxSpeed * vel3.getY() / vel3.distance()));
+          doctest::Approx(prey_max_speed * vel3.getY() / vel3.distance()));
     CHECK(v4.getX() ==
-          doctest::Approx(preyMinSpeed * ve4.getX() / vel4.distance()));
+          doctest::Approx(prey_min_speed * vel4.getX() / vel4.distance()));
     CHECK(v4.getY() ==
-          doctest::Approx(preyMinSpeed * ve4.getY() / vel4.distance()));
+          doctest::Approx(prey_min_speed * vel4.getY() / vel4.distance()));
     CHECK(v5.getX() ==
-          doctest::Approx(preyMaxSpeed * vel5.getX() / vel5.distance()));
+          doctest::Approx(prey_max_speed * vel5.getX() / vel5.distance()));
     CHECK(v5.getY() ==
-          doctest::Approx(preyMaxSpeed * vel5.getY() / vel5.distance()));
+          doctest::Approx(prey_max_speed * vel5.getY() / vel5.distance()));
   }
 }
 
-// TEST_CASE("Testing Predator class") {
-//   double ch{0.004};
+TEST_CASE("Testing Predator class") {
+  double ch{0.004};
+  boid::Predator p0;
+  boid::Predator p1(pos1, vel1);
+  boid::Predator p2(pos2, vel2);
+  boid::Predator p3(pos3, vel3);
+  boid::Predator p4;
+  const point::Point pos6 =
+      pos1 + 0.5 * d_ * 0.5 *
+                 point::Point(vel1.getX() - std::sqrt(3) * vel1.getY(),
+                              std::sqrt(3) * vel1.getX() + vel1.getY()) /
+                 vel1.distance();
+  p4.setBoid(pos6, vel4);
+  boid::Predator p5;
+  const point::Point pos7 =
+      pos1 + 0.5 * d_ * 0.5 *
+                 point::Point(vel1.getX() + std::sqrt(3) * vel1.getY(),
+                              -std::sqrt(3) * vel1.getX() + vel1.getY()) /
+                 vel1.distance();
+  p5.setBoid(pos7, vel5);
 
-//   boid::Predator p1(pos1, vel1);
-//   boid::Predator p2(pos2, vel2);
-//   boid::Predator p3(pos3, vel3);
-//   boid::Predator p4;
+  point::Point v0 = p0.getVelocity();
+  point::Point v1 = vel1;
+  point::Point v2 = vel2;
+  point::Point v3 = vel3;
+  point::Point v4 = vel4;
+  point::Point v5 = vel5;
 
-//   const point::Point pos6 =
-//       pos1 + 0.5 * d * 0.5 *
-//                  point::Point(vel1.getX() - std::sqrt(3) * vel1.getY(),
-//                               std::sqrt(3) * vel1.getX() + vel1.getY()) /
-//                  vel1.distance();
-//   p4.setBoid(pos6, vel4);
+  std::vector<std::shared_ptr<boid::Boid>> near_p1{
+      std::make_shared<boid::Predator>(p2),
+      std::make_shared<boid::Predator>(p3),
+      std::make_shared<boid::Predator>(p4),
+      std::make_shared<boid::Predator>(p5)};
+  std::vector<std::shared_ptr<boid::Boid>> near_p1_void;
 
-//   point::Point v1 = vel1;
-//   point::Point v2 = vel2;
-//   point::Point v3 = vel3;
-//   point::Point v4 = vel4;
+  SUBCASE("Testing getters") {
+    CHECK(p0.getPosition() == point::Point(0., 0.));
+    CHECK(p0.getVelocity() == point::Point(0., 0.));
+    CHECK(p1.getPosition() == point::Point(3., -2.));
+    CHECK(p1.getVelocity() == point::Point(5., -1.));
+  }
 
-//   std::vector<std::shared_ptr<boid::Boid>> near_p1{
-//       std::make_shared<boid::Predator>(p2),
-//       std::make_shared<boid::Predator>(p3),
-//       std::make_shared<boid::Predator>(p4)};
+  SUBCASE("Testing setters") {
+    CHECK(p4.getPosition().getX() == doctest::Approx(pos6.getX()));
+    CHECK(p4.getPosition().getY() == doctest::Approx(pos6.getY()));
+    CHECK(p4.getVelocity() == point::Point(-1., -2.));
+    CHECK(p5.getPosition().getX() == doctest::Approx(pos7.getX()));
+    CHECK(p5.getPosition().getY() == doctest::Approx(pos7.getY()));
+    CHECK(p5.getVelocity() == point::Point(-5., -3.2));
+  }
 
-//   SUBCASE("Testing getters") {
-//     boid::Predator p0;
-//     CHECK(p0.getPosition() == point::Point(0., 0.));
-//     CHECK(p0.getVelocity() == point::Point(0., 0.));
-//     CHECK(p1.getPosition() == point::Point(3., -2.));
-//     CHECK(p1.getVelocity() == point::Point(5., -1.));
-//   }
+  SUBCASE("Testing chase method") {
+    // here we apply boidd::Predator::chase on near_p1, which identifies the
+    // predators near p1, even if it was initially intended to be applied on
+    // near_boids.
+    CHECK(p1.chase(ch, near_p1_void).getX() == doctest::Approx(0.00000000));
+    CHECK(p1.chase(ch, near_p1_void).getY() == doctest::Approx(0.00000000));
 
-//   SUBCASE("Testing setters") {
-//     CHECK(p2.getPosition().getX() == doctest::Approx(pos2.getX()));
-//     CHECK(p2.getPosition().getY() == doctest::Approx(pos2.getY()));
-//     CHECK(p2.getVelocity() == point::Point(-8.5, -6.));
+    double chase1_x = ch * d_ * 1.3 * vel1.getX() / vel1.distance();
+    double chase1_y = ch * d_ * 1.3 * vel1.getY() / vel1.distance();
 
-//     CHECK(p3.getPosition().getX() == doctest::Approx(pos3.getX()));
-//     CHECK(p3.getPosition().getY() == doctest::Approx(pos3.getY()));
-//     CHECK(p3.getVelocity() == point::Point(-7.3, 2.5));
+    CHECK(p1.chase(ch, near_p1).getX() == doctest::Approx(chase1_x));
+    CHECK(p1.chase(ch, near_p1).getY() == doctest::Approx(chase1_y));
+  }
+  SUBCASE("Testing clamp method") {
+    p0.clamp(predator_min_speed, predator_max_speed, v0);
+    p1.clamp(predator_min_speed, predator_max_speed, v1);
+    p2.clamp(predator_min_speed, predator_max_speed, v2);
+    p3.clamp(predator_min_speed, predator_max_speed, v3);
+    p4.clamp(predator_min_speed, predator_max_speed, v4);
+    p5.clamp(predator_min_speed, predator_max_speed, v5);
 
-//     CHECK(p4.getPosition().getX() == doctest::Approx(pos6.getX()));
-//     CHECK(p4.getPosition().getY() == doctest::Approx(pos6.getY()));
-//     CHECK(p4.getVelocity() == point::Point(-1., -2.));
-//   }
+    CHECK(v0.getX() == doctest::Approx(predator_min_speed));
+    CHECK(v0.getY() == doctest::Approx(0.00000000));
+    CHECK(v1.getX() ==
+          doctest::Approx(predator_max_speed * vel1.getX() / vel1.distance()));
+    CHECK(v1.getY() ==
+          doctest::Approx(predator_max_speed * vel1.getY() / vel1.distance()));
+    CHECK(v2.getX() ==
+          doctest::Approx(predator_max_speed * vel2.getX() / vel2.distance()));
+    CHECK(v2.getY() ==
+          doctest::Approx(predator_max_speed * vel2.getY() / vel2.distance()));
+    CHECK(v3.getX() ==
+          doctest::Approx(predator_max_speed * vel3.getX() / vel3.distance()));
+    CHECK(v3.getY() ==
+          doctest::Approx(predator_max_speed * vel3.getY() / vel3.distance()));
+    CHECK(v4.getX() ==
+          doctest::Approx(predator_min_speed * vel4.getX() / vel4.distance()));
+    CHECK(v4.getY() ==
+          doctest::Approx(predator_min_speed * vel4.getY() / vel4.distance()));
+    CHECK(v5.getX() ==
+          doctest::Approx(predator_max_speed * vel5.getX() / vel5.distance()));
+    CHECK(v5.getY() ==
+          doctest::Approx(predator_max_speed * vel5.getY() / vel5.distance()));
+  }
+}
 
-//   SUBCASE("Testing chase method") {
-//     // here we apply boidd::Predator::chase on near_p1, which identifies
-//     the
-//     // predators near p1, even if it was initially intended to be applied
-//     on
-//     // near_boids.
+/////////////// TESTING FLOCK CLASS /////////////////////////////
 
-//     double chase1_x =
-//         ch * d / 3. * (1.3 * std::sin(alfa) + 0.8 * std::sin(beta));
-//     double chase1_y =
-//         ch * -d / 3. * (1.3 * std::cos(alfa) + 0.8 * std::cos(beta));
-
-//     CHECK(p1.chase(ch, near_p1).getX() == doctest::Approx(chase1_x));
-//     CHECK(p1.chase(ch, near_p1).getY() == doctest::Approx(chase1_y));
-//   }
-
-//   SUBCASE("Testing clamp method") {
-//     p1.clamp(predatorMinSpeed, predatorMaxSpeed, v1);
-//     p2.clamp(predatorMinSpeed, predatorMaxSpeed, v2);
-//     p3.clamp(predatorMinSpeed, predatorMaxSpeed, v3);
-//     p4.clamp(predatorMinSpeed, predatorMaxSpeed, v4);
-
-//     CHECK(v1.getX() ==
-//           doctest::Approx(predatorMaxSpeed * vel1.getX() /
-//           vel1.distance()));
-//     CHECK(v1.getY() ==
-//           doctest::Approx(predatorMaxSpeed * vel1.getY() /
-//           vel1.distance()));
-
-//     CHECK(v2.getX() ==
-//           doctest::Approx(predatorMaxSpeed * vel2.getX() /
-//           vel2.distance()));
-//     CHECK(v2.getY() ==
-//           doctest::Approx(predatorMaxSpeed * vel2.getY() /
-//           vel2.distance()));
-
-//     CHECK(v3.getX() ==
-//           doctest::Approx(predatorMaxSpeed * vel3.getX() /
-//           vel3.distance()));
-//     CHECK(v3.getY() ==
-//           doctest::Approx(predatorMaxSpeed * vel3.getY() /
-//           vel3.distance()));
-
-//     CHECK(v4.getX() ==
-//           doctest::Approx(predatorMinSpeed * ve4.getX() /
-//           vel4.distance()));
-//     CHECK(v4.getY() ==
-//           doctest::Approx(predatorMinSpeed * ve4.getY() /
-//           vel4.distance()));
-//   }
-// }
+TEST_CASE("Testing Flock class") {}

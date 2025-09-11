@@ -24,7 +24,7 @@ class Point {
 // free functions
 Point operator+(Point const&, Point const&);
 Point operator-(Point const&, Point const&);
-Point operator*(Point const&, double);
+Point operator*(double, Point const&);
 Point operator/(Point const&, double);
 bool operator==(Point const&, Point const&);
 Point relativePosition(const Point&, const Point&);

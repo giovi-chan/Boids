@@ -36,11 +36,11 @@ Point operator-(Point const& a, Point const& b) {
   return Point(a.getX() - b.getX(), a.getY() - b.getY());
 }
 
-Point operator*(Point const& p, double c) {
+Point operator*(double c, Point const& p) {
   return Point(p.getX() * c, p.getY() * c);
 }
 
-Point operator/(Point const& p, double c) {
+Point operator/(Point const& p, const double c) {
   assert(c != 0.);
   return Point(p.getX() / c, p.getY() / c);
 }
@@ -50,10 +50,10 @@ bool operator==(Point const& p, Point const& q) {
 }
 
 Point relativePosition(const Point& p1, const Point& p2) {
-  double width = static_cast<double>(graphics::window_width);
-  double height = static_cast<double>(graphics::window_height);
-  double half_width = width / 2.0;
-  double half_height = height / 2.0;
+  const double width = static_cast<double>(graphics::window_width);
+  const double height = static_cast<double>(graphics::window_height);
+  const double half_width = width / 2.0;
+  const double half_height = height / 2.0;
 
   double delta_x = p2.getX() - p1.getX();
   double delta_y = p2.getY() - p1.getY();
