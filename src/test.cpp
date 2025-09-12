@@ -8,7 +8,7 @@
 #include "../include/point.hpp"
 
 const std::array<double, 3> distance_parameters =
-    flock::Flock::getDistancesParameters();
+    flock::Flock::getDistanceParameters();
 const double d_{distance_parameters[0]};
 const double prey_ds_{distance_parameters[1]};
 const double predator_ds_{distance_parameters[2]};
@@ -409,6 +409,188 @@ TEST_CASE("Testing Predator class") {
   }
 }
 
-/////////////// TESTING FLOCK CLASS /////////////////////////////
+/////////////// TESTING FLOCK CLASS /////////////////
 
-TEST_CASE("Testing Flock class") {}
+TEST_CASE("Testing Flock class") {
+  auto prey1 =
+      std::make_shared<boid::Prey>(point::Point(1, 1), point::Point(1, 0));
+  auto prey2 =
+      std::make_shared<boid::Prey>(point::Point(2, 2), point::Point(0, 1));
+  auto prey3 =
+      std::make_shared<boid::Prey>(point::Point(3, 3), point::Point(-1, 0));
+  auto prey4 =
+      std::make_shared<boid::Prey>(point::Point(4, 4), point::Point(0, -1));
+
+  auto predator1 =
+      std::make_shared<boid::Predator>(point::Point(5, 5), point::Point(1, 1));
+  auto predator2 = std::make_shared<boid::Predator>(point::Point(6, 6),
+                                                    point::Point(-1, -1));
+
+  std::vector<std::shared_ptr<boid::Prey>> prey_flock = {prey1, prey2, prey3,
+                                                         prey4};
+  std::vector<std::shared_ptr<boid::Predator>> predator_flock = {predator1,
+                                                                 predator2};
+
+  flock::SpeedLimits custom_speed_limits{5.0, 10.0, 3.0, 6.0};
+
+  flock::Flock f0(5, 2);
+  flock::Flock f1(prey_flock, predator_flock, custom_speed_limits);
+
+  SUBCASE("Testing getPreyNum, getPredatorNum, getFlockSize methods") {
+    CHECK(f0.getPreyNum() == 5);
+    CHECK(f0.getPredatorsNum() == 2);
+    CHECK(f0.getFlockSize() == 7);
+    CHECK(f1.getPreyNum() == 4);
+    CHECK(f1.getPredatorsNum() == 2);
+    CHECK(f1.getFlockSize() == 6);
+  }
+
+  SUBCASE(
+      "Testing first constructor, getFlightParameters, getSpeedLimits "
+      "methods") {
+    CHECK(f0.getPreyFlock().size() == 0);
+    CHECK(f0.getPredatorFlock().size() == 0);
+
+    flock::FlightParameters flight_parameters_f0 = f0.getFlightParameters();
+
+    CHECK(flight_parameters_f0.separation == doctest::Approx(0.1));
+    CHECK(flight_parameters_f0.alignment == doctest::Approx(0.1));
+    CHECK(flight_parameters_f0.cohesion == doctest::Approx(0.004));
+    CHECK(flight_parameters_f0.repulsion == doctest::Approx(0.6));
+    CHECK(flight_parameters_f0.chase == doctest::Approx(0.008));
+
+    flock::SpeedLimits speed_limits_f0 = f0.getSpeedLimits();
+
+    CHECK(speed_limits_f0.prey_min == doctest::Approx(7.));
+    CHECK(speed_limits_f0.prey_max == doctest::Approx(12.));
+    CHECK(speed_limits_f0.predator_min == doctest::Approx(5.));
+    CHECK(speed_limits_f0.predator_max == doctest::Approx(8.));
+  }
+
+  SUBCASE(
+      "Testing second constructor, getFlightParameters, getSpeedLimits "
+      "methods") {
+    CHECK(f1.getPreyFlock().size() == 4);
+    CHECK(f1.getPredatorFlock().size() == 2);
+    flock::FlightParameters flight_parameters_f1 = f1.getFlightParameters();
+
+    CHECK(flight_parameters_f1.separation == doctest::Approx(0.1));
+    CHECK(flight_parameters_f1.alignment == doctest::Approx(0.1));
+    CHECK(flight_parameters_f1.cohesion == doctest::Approx(0.004));
+    CHECK(flight_parameters_f1.repulsion == doctest::Approx(0.6));
+    CHECK(flight_parameters_f1.chase == doctest::Approx(0.008));
+
+    flock::SpeedLimits speed_limits_f1 = f1.getSpeedLimits();
+
+    CHECK(speed_limits_f1.prey_min == doctest::Approx(5.));
+    CHECK(speed_limits_f1.prey_max == doctest::Approx(10.));
+    CHECK(speed_limits_f1.predator_min == doctest::Approx(3.));
+    CHECK(speed_limits_f1.predator_max == doctest::Approx(6.));
+  }
+
+  SUBCASE("Testing getPreyFlock, getPredatorFlock methods") {
+    const auto f1_prey = f1.getPreyFlock();
+    const auto f1_predator = f1.getPredatorFlock();
+
+    CHECK(f1_prey[2]->getPosition().getX() == doctest::Approx(3.));
+    CHECK(f1_prey[2]->getPosition().getY() == doctest::Approx(3.));
+    CHECK(f1_prey[2]->getVelocity().getX() == doctest::Approx(-1.));
+    CHECK(f1_prey[2]->getVelocity().getY() == doctest::Approx(0.));
+    CHECK(f1_predator[1]->getPosition().getX() == doctest::Approx(6.));
+    CHECK(f1_predator[1]->getPosition().getY() == doctest::Approx(6.));
+    CHECK(f1_predator[1]->getVelocity().getX() == doctest::Approx(-1.));
+    CHECK(f1_predator[1]->getVelocity().getY() == doctest::Approx(-1.));
+  }
+
+  SUBCASE("Testing getDistanceParameters method") {
+    const std::array<double, 3> distance_parameters_f0 =
+        flock::Flock::getDistanceParameters();
+
+    CHECK(distance_parameters_f0[0] == doctest::Approx(75.0));
+    CHECK(distance_parameters_f0[1] == doctest::Approx(20.0));
+    CHECK(distance_parameters_f0[2] == doctest::Approx(37.5));
+  }
+
+  SUBCASE("Testing nearPrey, nearPredators methods") {
+    auto prey5 = std::make_shared<boid::Prey>(point::Point(2, 100),
+                                              point::Point(0., -1.));
+
+    auto predator3 = std::make_shared<boid::Predator>(point::Point(2., 0.),
+                                                      point::Point(0., -1.));
+
+    auto predator4 = std::make_shared<boid::Predator>(point::Point(2, 120),
+                                                      point::Point(1, 1));
+
+    std::vector<std::shared_ptr<boid::Prey>> prey_flock_2 = {
+        prey1, prey2, prey3, prey4, prey5};
+    std::vector<std::shared_ptr<boid::Predator>> predator_flock_2 = {
+        predator1, predator2, predator3, predator4};
+
+    flock::Flock f2(prey_flock_2, predator_flock_2, custom_speed_limits);
+
+    const auto prey2_near_prey = f2.nearPrey(1, true);
+    CHECK(prey2_near_prey.size() == 2);
+
+    const auto prey2_near_predators = f2.nearPredators(1, true);
+    CHECK(prey2_near_predators.size() == 2);
+
+    const auto prey5_near_prey = f2.nearPrey(4, true);
+    CHECK(prey5_near_prey.size() == 0);
+
+    const auto prey5_near_predators = f2.nearPredators(4, true);
+    CHECK(prey5_near_predators.size() == 0);
+
+    const auto pred2_near_prey = f2.nearPrey(1, false);
+    CHECK(pred2_near_prey.size() == 4);
+
+    const auto pred2_near_predators = f2.nearPredators(1, false);
+    CHECK(pred2_near_predators.size() == 2);
+
+    const auto pred3_near_prey = f2.nearPrey(2, false);
+    CHECK(prey5_near_prey.size() == 0);
+
+    const auto pred3_near_predators = f2.nearPredators(2, false);
+    CHECK(prey5_near_predators.size() == 0);
+
+    CHECK(prey2_near_prey[0]->getPosition().getX() == doctest::Approx(3.));
+    CHECK(prey2_near_prey[0]->getPosition().getY() == doctest::Approx(3.));
+    CHECK(prey2_near_prey[1]->getPosition().getX() == doctest::Approx(4.));
+    CHECK(prey2_near_prey[1]->getPosition().getY() == doctest::Approx(4.));
+
+    CHECK(prey2_near_predators[0]->getPosition().getX() == doctest::Approx(5.));
+    CHECK(prey2_near_predators[0]->getPosition().getY() == doctest::Approx(5.));
+    CHECK(prey2_near_predators[1]->getPosition().getX() == doctest::Approx(6.));
+    CHECK(prey2_near_predators[1]->getPosition().getY() == doctest::Approx(6.));
+
+    CHECK(pred2_near_prey[0]->getPosition().getX() == doctest::Approx(1.));
+    CHECK(pred2_near_prey[0]->getPosition().getY() == doctest::Approx(1.));
+    CHECK(pred2_near_prey[1]->getPosition().getX() == doctest::Approx(2.));
+    CHECK(pred2_near_prey[1]->getPosition().getY() == doctest::Approx(2.));
+    CHECK(pred2_near_prey[2]->getPosition().getX() == doctest::Approx(3.));
+    CHECK(pred2_near_prey[2]->getPosition().getY() == doctest::Approx(3.));
+    CHECK(pred2_near_prey[3]->getPosition().getX() == doctest::Approx(4.));
+    CHECK(pred2_near_prey[3]->getPosition().getY() == doctest::Approx(4.));
+
+    CHECK(pred2_near_predators[0]->getPosition().getX() == doctest::Approx(5.));
+    CHECK(pred2_near_predators[0]->getPosition().getY() == doctest::Approx(5.));
+    CHECK(pred2_near_predators[1]->getPosition().getX() == doctest::Approx(2.));
+    CHECK(pred2_near_predators[1]->getPosition().getY() == doctest::Approx(0.));
+  }
+}
+
+/////////////// TESTING STATISTICS STRUCT /////////
+
+TEST_CASE("Testing Statistics struct") {
+  statistics::Statistics stats0;
+  statistics::Statistics stats1(15., 11., 12., 5.);
+
+  CHECK(stats0.mean_distance == 0.);
+  CHECK(stats0.dev_distance == 0.);
+  CHECK(stats0.mean_velocity == 0.);
+  CHECK(stats0.dev_velocity == 0.);
+
+  CHECK(stats1.mean_distance == 15.);
+  CHECK(stats1.dev_distance == 11.);
+  CHECK(stats1.mean_velocity == 12.);
+  CHECK(stats1.dev_velocity == 5.);
+}

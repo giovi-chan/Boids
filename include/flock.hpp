@@ -61,9 +61,10 @@ class Flock {
   std::vector<std::shared_ptr<boid::Predator>> getPredatorFlock() const;
 
   FlightParameters getFlightParameters() const;
-  // SpeedLimits getSpeedLimits() const; non serve
 
-  static std::array<double, 3> getDistancesParameters();
+  SpeedLimits getSpeedLimits() const;
+
+  static std::array<double, 3> getDistanceParameters();
 
   void setFlockSize();
 

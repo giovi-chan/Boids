@@ -49,7 +49,9 @@ FlightParameters Flock::getFlightParameters() const {
   return flight_parameters_;
 }
 
-std::array<double, 3> Flock::getDistancesParameters() {
+SpeedLimits Flock::getSpeedLimits() const { return speed_limits_; }
+
+std::array<double, 3> Flock::getDistanceParameters() {
   return {d_, prey_ds_, predator_ds_};
 }
 
@@ -122,8 +124,8 @@ void Flock ::setFlightParameters() {
 void Flock::generateBoids() {
   std::uniform_real_distribution<> dist_pos_x(0., graphics::window_width);
   std::uniform_real_distribution<> dist_pos_y(0., graphics::window_height);
-  std::uniform_real_distribution<> dist_angle(0, 2 * M_PI);
-  std::uniform_real_distribution<> dist_vel(0, 5.);
+  std::uniform_real_distribution<> dist_angle(0., 2 * M_PI);
+  std::uniform_real_distribution<> dist_vel(0., 5.);
 
   prey_flock_.clear();
   prey_flock_.reserve(n_prey_);
