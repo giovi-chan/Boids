@@ -71,11 +71,11 @@ class Flock {
 
   void generateBoids();
 
-  std::vector<std::shared_ptr<boid::Boid>> nearPrey(const std::size_t i,
-                                                    const bool is_prey) const;
+  std::vector<std::shared_ptr<boid::Boid>> nearPrey(std::size_t i,
+                                                    bool is_prey) const;
 
-  std::vector<std::shared_ptr<boid::Boid>> nearPredators(
-      const std::size_t i, const bool is_prey) const;
+  std::vector<std::shared_ptr<boid::Boid>> nearPredators(std::size_t i,
+                                                         bool is_prey) const;
 
   std::array<point::Point, 2> updateBoid(std::size_t i, bool is_prey,
                                          double dt) const;

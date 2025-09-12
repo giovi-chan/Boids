@@ -39,8 +39,10 @@ int main() {
   statsText.setFillColor(sf::Color::White);
   statsText.setPosition(15.f, 15.f);  // leggero offset dal rettangolo
 
+  int time{};
+
   while (window->isOpen()) {
-    sf::Event event;
+    sf::Event event{};
     while (window->pollEvent(event)) {
       if (event.type == sf::Event::Closed) window->close();
       if (event.type == sf::Event::KeyPressed) {
@@ -56,6 +58,7 @@ int main() {
 
     if (flock.getPreyNum() > 2) {
       auto stats = flock.statistics();
+
       std::ostringstream oss;
       oss << std::fixed << std::setprecision(2);
       oss << "Mean dist: " << stats.mean_distance << "\n"
@@ -64,15 +67,14 @@ int main() {
           << "Dev speed: " << stats.dev_velocity;
       statsText.setString(oss.str());
 
-      window->draw(statsPanel);
-      window->draw(statsText);
     } else {
       statsText.setString("Not enough prey to run statistics");
-      window->draw(statsPanel);
-      window->draw(statsText);
     }
+    window->draw(statsPanel);
+    window->draw(statsText);
 
     window->display();
+    ++time;
   }
 
   return 0;

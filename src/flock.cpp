@@ -15,9 +15,9 @@
 
 namespace flock {
 
-Flock::Flock(const std::size_t nPrey, const std::size_t nPredators)
-    : n_prey_(nPrey),
-      n_predators_(nPredators),
+Flock::Flock(const std::size_t n_prey, const std::size_t n_predators)
+    : n_prey_(n_prey),
+      n_predators_(n_predators),
       flight_parameters_{0.1, 0.1, 0.004, 0.6, 0.008},
       speed_limits_{7., 12., 5., 8.} {
   prey_flock_.reserve(n_prey_);
@@ -87,7 +87,8 @@ void Flock ::setFlightParameters() {
                  "alignment=0.1\n "
                  "cohesion=0.004\n repulsion=0.6\n chase=0.008\n";
     return;
-  } else if (statement == 'Y' || statement == 'y') {
+  }
+  if (statement == 'Y' || statement == 'y') {
     double s;
     std::cout << "Enter separation coefficient: ";
     std::cin >> s;
@@ -110,6 +111,7 @@ void Flock ::setFlightParameters() {
 
     flight_parameters_.repulsion = s * 6;
     flight_parameters_.chase = c * 2;
+
   } else {
     std::cout << "\nUsing default values.\n separation=0.1\n alignment=0.1\n "
                  "cohesion=0.004\n "
@@ -157,13 +159,14 @@ std::vector<std::shared_ptr<boid::Boid>> Flock::nearPrey(
 
     const auto& other = prey_flock_[j];
 
-    double dist =
+    const double dist =
         point::toroidalDistance(target->getPosition(), other->getPosition());
 
     if (dist < d_) {
-      double relative_angle = target->angle(*other);
+      const double relative_angle = target->angle(*other);
 
-      double sight_angle = is_prey ? prey_sight_angle_ : predator_sight_angle_;
+      const double sight_angle =
+          is_prey ? prey_sight_angle_ : predator_sight_angle_;
       if (std::abs(relative_angle) < sight_angle) {
         near.emplace_back(other);
       }
@@ -177,7 +180,7 @@ std::vector<std::shared_ptr<boid::Boid>> Flock::nearPredators(
     const std::size_t i, const bool is_prey) const {
   std::vector<std::shared_ptr<boid::Boid>> near;
 
-  std::shared_ptr<boid::Boid> target =
+  const std::shared_ptr<boid::Boid> target =
       is_prey ? std::static_pointer_cast<boid::Boid>(prey_flock_[i])
               : std::static_pointer_cast<boid::Boid>(predator_flock_[i]);
 
@@ -203,7 +206,8 @@ std::vector<std::shared_ptr<boid::Boid>> Flock::nearPredators(
   return near;
 }
 
-std::array<point::Point, 2> Flock::updateBoid(std::size_t i, bool is_prey,
+std::array<point::Point, 2> Flock::updateBoid(const std::size_t i,
+                                              const bool is_prey,
                                               const double dt) const {
   point::Point pos;
   point::Point vel;
@@ -212,8 +216,8 @@ std::array<point::Point, 2> Flock::updateBoid(std::size_t i, bool is_prey,
     pos = prey_flock_[i]->getPosition();
     vel = prey_flock_[i]->getVelocity();
 
-    auto near_prey = nearPrey(i, true);
-    auto near_predators = nearPredators(i, true);
+    const auto near_prey = nearPrey(i, true);
+    const auto near_predators = nearPredators(i, true);
 
     if (!near_predators.empty())
       vel += prey_flock_[i]->repulsion(flight_parameters_.repulsion,
@@ -232,8 +236,8 @@ std::array<point::Point, 2> Flock::updateBoid(std::size_t i, bool is_prey,
     pos = predator_flock_[i]->getPosition();
     vel = predator_flock_[i]->getVelocity();
 
-    auto near_prey = nearPrey(i, false);
-    auto near_predators = nearPredators(i, false);
+    const auto near_prey = nearPrey(i, false);
+    const auto near_predators = nearPredators(i, false);
 
     if (!near_predators.empty())
       vel += predator_flock_[i]->separation(flight_parameters_.separation,
@@ -276,13 +280,13 @@ void Flock::updateFlock(const double dt) const {
   new_pred_vel.reserve(n_predators_);
 
   for (std::size_t i = 0; i < n_prey_; ++i) {
-    auto result = updateBoid(i, true, dt);
+    const auto result = updateBoid(i, true, dt);
     new_prey_pos.push_back(result[0]);
     new_prey_vel.push_back(result[1]);
   }
 
   for (std::size_t i = 0; i < n_predators_; ++i) {
-    auto result = updateBoid(i, false, dt);
+    const auto result = updateBoid(i, false, dt);
     new_pred_pos.push_back(result[0]);
     new_pred_vel.push_back(result[1]);
   }
@@ -301,7 +305,7 @@ statistics::Statistics Flock::statistics() const {
   double mean_dist = 0.0;
   double mean_dist2 = 0.0;
   for (auto it = prey_flock_.begin(); it != prey_flock_.begin() + n; ++it) {
-    auto sum = std::accumulate(
+    const auto sum = std::accumulate(
         it + 1, prey_flock_.begin() + n, std::array<double, 2>{0.0, 0.0},
         [&it](auto& accumulate, const std::shared_ptr<boid::Boid>& boid) {
           const double dist = point::toroidalDistance((*it)->getPosition(),
@@ -318,7 +322,7 @@ statistics::Statistics Flock::statistics() const {
   mean_dist2 /= denom;
 
   // Calcolo media e deviazione standard della velocità
-  auto sum = std::accumulate(
+  const auto sum = std::accumulate(
       prey_flock_.begin(), prey_flock_.begin() + n,
       std::array<double, 2>{0.0, 0.0},
       [](auto& accumulate, const std::shared_ptr<boid::Boid>& boid) {

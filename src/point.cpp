@@ -7,12 +7,12 @@
 
 namespace point {
 
-Point::Point(double x, double y) : x_{x}, y_{y} {}
+Point::Point(const double x, const double y) : x_{x}, y_{y} {}
 
 double Point::getX() const { return x_; }
 double Point::getY() const { return y_; }
-void Point::setX(double x) { x_ = x; }
-void Point::setY(double y) { y_ = y; }
+void Point::setX(const double x) { x_ = x; }
+void Point::setY(const double y) { y_ = y; }
 
 double Point::distance() const { return std::sqrt(x_ * x_ + y_ * y_); }
 
@@ -36,7 +36,7 @@ Point operator-(Point const& a, Point const& b) {
   return Point(a.getX() - b.getX(), a.getY() - b.getY());
 }
 
-Point operator*(double c, Point const& p) {
+Point operator*(const double c, Point const& p) {
   return Point(p.getX() * c, p.getY() * c);
 }
 
@@ -50,10 +50,10 @@ bool operator==(Point const& p, Point const& q) {
 }
 
 Point relativePosition(const Point& p1, const Point& p2) {
-  const double width = static_cast<double>(graphics::window_width);
-  const double height = static_cast<double>(graphics::window_height);
-  const double half_width = width / 2.0;
-  const double half_height = height / 2.0;
+  constexpr auto width = static_cast<double>(graphics::window_width);
+  constexpr auto height = static_cast<double>(graphics::window_height);
+  constexpr double half_width = width / 2.0;
+  constexpr double half_height = height / 2.0;
 
   double delta_x = p2.getX() - p1.getX();
   double delta_y = p2.getY() - p1.getY();

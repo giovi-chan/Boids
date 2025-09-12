@@ -23,8 +23,7 @@ void Boid::setBoid(const point::Point& position, const point::Point& velocity) {
 }
 
 double Boid::angle(const Boid& other) const {
-  const point::Point delta =
-      point::relativePosition(position_, other.getPosition());
+  const point::Point delta = relativePosition(position_, other.getPosition());
   const double vel_mag = velocity_.distance();
   const double delta_mag = delta.distance();
 
@@ -168,7 +167,7 @@ void Predator::clamp(const double min_speed, const double max_speed,
   assert(min_speed >= 0);
   assert(max_speed > 0);
   assert(min_speed <= max_speed);
-
+  //
   const double speed = velocity.distance();
   if (speed == 0.0) {
     velocity = {min_speed, 0.};

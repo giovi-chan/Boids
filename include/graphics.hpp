@@ -3,7 +3,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <memory>
-#include <vector>
 
 #include "../include/flock.hpp"
 

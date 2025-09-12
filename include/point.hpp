@@ -9,7 +9,7 @@ class Point {
 
   // methods
  public:
-  Point(double x = 0., double y = 0.);
+  explicit Point(double x = 0., double y = 0.);
 
   double getX() const;
   double getY() const;

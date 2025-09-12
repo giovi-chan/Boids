@@ -2,7 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <cmath>
-#include <iostream>
 #include <memory>
 
 #include "../include/boid.hpp"
@@ -28,7 +27,8 @@ bool loadBackground(const std::string& filename) {
   return true;
 }
 
-std::unique_ptr<sf::RenderWindow> makeWindow(unsigned width, unsigned height,
+std::unique_ptr<sf::RenderWindow> makeWindow(const unsigned width,
+                                             const unsigned height,
                                              const std::string& title) {
   sf::ContextSettings settings;
   settings.antialiasingLevel = 4;
@@ -37,12 +37,13 @@ std::unique_ptr<sf::RenderWindow> makeWindow(unsigned width, unsigned height,
   return window;
 }
 
-float angleDegFromVelocity(double vx, double vy) {
+float angleDegFromVelocity(const double vx, const double vy) {
   return static_cast<float>(std::atan2(vy, vx) * 180.0 / M_PI);
 }
 
-sf::ConvexShape makeBoidTriangle(float size, float stroke, sf::Color fill,
-                                 sf::Color outline) {
+sf::ConvexShape makeBoidTriangle(const float size, const float stroke,
+                                 const sf::Color fill,
+                                 const sf::Color outline) {
   const float L = size;
   const float W = size * 0.6f;
 
@@ -58,8 +59,9 @@ sf::ConvexShape makeBoidTriangle(float size, float stroke, sf::Color fill,
   return triangle;
 }
 
-void drawBoid(sf::RenderWindow& window, double x, double y, double vx,
-              double vy, const Style& style, bool is_prey) {
+void drawBoid(sf::RenderWindow& window, const double x, const double y,
+              const double vx, const double vy, const Style& style,
+              const bool is_prey) {
   sf::ConvexShape triangle =
       is_prey ? makeBoidTriangle(style.prey_size, style.stroke, style.prey_fill,
                                  style.prey_outline)

@@ -10,6 +10,7 @@ Statistics::Statistics()
 
 Statistics::Statistics(const double mean_dist, const double dev_dist,
                        const double mean_vel, const double dev_vel)
+
     : mean_distance{mean_dist},
       dev_distance{dev_dist},
       mean_velocity{mean_vel},

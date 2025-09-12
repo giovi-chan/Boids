@@ -107,9 +107,9 @@ TEST_CASE("testing Point class") {
     CHECK(diff4.getY() == doctest::Approx(+3.00000000));
   }
   SUBCASE("testing operator *") {
-    double constant0{0.};
-    double constant1{2.};
-    double constant2{-3.};
+    const double constant0{0.};
+    const double constant1{2.};
+    const double constant2{-3.};
     point::Point q00 = constant0 * p0;
     point::Point q01 = constant1 * p0;
     point::Point q02 = constant2 * p0;
@@ -130,8 +130,8 @@ TEST_CASE("testing Point class") {
     CHECK(q22.getY() == doctest::Approx(-15.00000000));
   }
   SUBCASE("testing operator /") {
-    double constant1{2.};
-    double constant2{-3.};
+    const double constant1{2.};
+    const double constant2{-3.};
     point::Point q11 = p1 / constant1;
     point::Point q12 = p1 / constant2;
     point::Point q21 = p2 / constant1;
