@@ -618,6 +618,106 @@ TEST_CASE("Testing Flock class") {
     }
     CHECK(any_changed);
   }
+  SUBCASE("Testing updateBoid method on the second prey of f1") {
+    const double s{0.1};
+    const double a{0.1};
+    const double c{0.004};
+    const double r{s * 6};
+
+    const auto near_prey = f1.nearPrey(1, true);
+    const auto near_predators = f1.nearPredators(1, true);
+
+    CHECK(near_prey.size() == 2);
+    CHECK(near_predators.size() == 2);
+
+    point::Point vel = prey_flock[1]->getVelocity();
+    vel += prey_flock[1]->repulsion(r, near_predators) +
+           prey_flock[1]->separation(s, prey_ds_, near_prey) +
+           prey_flock[1]->alignment(a, near_prey) +
+           prey_flock[1]->cohesion(c, near_prey);
+    prey_flock[1]->clamp(5, 10, vel);
+    CHECK(f1.updateBoid(1, true, 1)[1].getX() == doctest::Approx(vel.getX()));
+    CHECK(f1.updateBoid(1, true, 1)[1].getY() == doctest::Approx(vel.getY()));
+    point::Point pos = point::Point(2., 2.) + vel + point::Point(1400., 800);
+    CHECK(f1.updateBoid(1, true, 1)[0].getX() == doctest::Approx(pos.getX()));
+    CHECK(f1.updateBoid(1, true, 1)[0].getY() == doctest::Approx(pos.getY()));
+  }
+  SUBCASE(" Testing updateBoid on the second predator of f1") {
+    const double s{0.1};
+    const double ch{0.008};
+
+    const auto near_prey = f1.nearPrey(1, false);
+    const auto near_predators = f1.nearPredators(1, false);
+
+    CHECK(near_prey.size() == 4);
+    CHECK(near_predators.size() == 1);
+
+    point::Point vel = predator_flock[1]->getVelocity();
+    vel += predator_flock[1]->separation(s, predator_ds_, near_predators) +
+           predator_flock[1]->chase(ch, near_prey);
+    predator_flock[1]->clamp(3, 6, vel);
+
+    CHECK(f1.updateBoid(1, false, 1)[1].getX() == doctest::Approx(vel.getX()));
+    CHECK(f1.updateBoid(1, false, 1)[1].getY() == doctest::Approx(vel.getY()));
+    point::Point pos = point::Point(6., 6.) + vel;
+    CHECK(f1.updateBoid(1, false, 1)[0].getX() == doctest::Approx(pos.getX()));
+    CHECK(f1.updateBoid(1, false, 1)[0].getY() == doctest::Approx(pos.getY()));
+  }
+  SUBCASE("Testing updateFlock") {
+    double dt = 1.0;
+
+    const auto preys = prey_flock;
+    const auto preds = predator_flock;
+
+    const std::size_t n_prey = preys.size();
+    const std::size_t n_pred = preds.size();
+
+    std::vector<point::Point> expected_prey_pos;
+    std::vector<point::Point> expected_prey_vel;
+    std::vector<point::Point> expected_pred_pos;
+    std::vector<point::Point> expected_pred_vel;
+
+    expected_prey_pos.reserve(n_prey);
+    expected_prey_vel.reserve(n_prey);
+    expected_pred_pos.reserve(n_pred);
+    expected_pred_vel.reserve(n_pred);
+
+    for (std::size_t i = 0; i < n_prey; ++i) {
+      std::array<point::Point, 2> res = f1.updateBoid(i, true, dt);
+      expected_prey_pos.push_back(res[0]);
+      expected_prey_vel.push_back(res[1]);
+    }
+
+    for (std::size_t i = 0; i < n_pred; ++i) {
+      std::array<point::Point, 2> res = f1.updateBoid(i, false, dt);
+      expected_pred_pos.push_back(res[0]);
+      expected_pred_vel.push_back(res[1]);
+    }
+
+    f1.updateFlock(dt);
+
+    for (std::size_t i = 0; i < n_prey; ++i) {
+      CHECK(preys[i]->getPosition().getX() ==
+            doctest::Approx(expected_prey_pos[i].getX()));
+      CHECK(preys[i]->getPosition().getY() ==
+            doctest::Approx(expected_prey_pos[i].getY()));
+      CHECK(preys[i]->getVelocity().getX() ==
+            doctest::Approx(expected_prey_vel[i].getX()));
+      CHECK(preys[i]->getVelocity().getY() ==
+            doctest::Approx(expected_prey_vel[i].getY()));
+    }
+
+    for (std::size_t i = 0; i < n_pred; ++i) {
+      CHECK(preds[i]->getPosition().getX() ==
+            doctest::Approx(expected_pred_pos[i].getX()));
+      CHECK(preds[i]->getPosition().getY() ==
+            doctest::Approx(expected_pred_pos[i].getY()));
+      CHECK(preds[i]->getVelocity().getX() ==
+            doctest::Approx(expected_pred_vel[i].getX()));
+      CHECK(preds[i]->getVelocity().getY() ==
+            doctest::Approx(expected_pred_vel[i].getY()));
+    }
+  }
 }
 
 /////////////// TESTING STATISTICS STRUCT /////////
