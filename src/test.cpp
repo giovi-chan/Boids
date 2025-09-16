@@ -718,6 +718,56 @@ TEST_CASE("Testing Flock class") {
             doctest::Approx(expected_pred_vel[i].getY()));
     }
   }
+  SUBCASE("statistics computes mean and stddev of prey distances and speeds") {
+    const auto preys = prey_flock;
+    const std::size_t n = preys.size();
+
+    // --- Calcolo manuale delle statistiche attese ---
+    std::vector<double> distances;
+    distances.reserve(n * (n - 1) / 2);
+
+    for (std::size_t i = 0; i < n; ++i) {
+      for (std::size_t j = i + 1; j < n; ++j) {
+        distances.push_back(point::toroidalDistance(preys[i]->getPosition(),
+                                                    preys[j]->getPosition()));
+      }
+    }
+
+    double sum_dist = 0.0, sum_dist2 = 0.0;
+    for (double d : distances) {
+      sum_dist += d;
+      sum_dist2 += d * d;
+    }
+
+    const double mean_dist = sum_dist / static_cast<double>(distances.size());
+    const double dev_dist =
+        std::sqrt(sum_dist2 / static_cast<double>(distances.size()) -
+                  mean_dist * mean_dist);
+
+    std::vector<double> speeds;
+    speeds.reserve(n);
+    for (auto& p : preys) {
+      speeds.push_back(p->getVelocity().distance());
+    }
+
+    double sum_speed = 0.0, sum_speed2 = 0.0;
+    for (double v : speeds) {
+      sum_speed += v;
+      sum_speed2 += v * v;
+    }
+
+    const double mean_speed = sum_speed / static_cast<double>(n);
+    const double dev_speed = std::sqrt(sum_speed2 / static_cast<double>(n) -
+                                       mean_speed * mean_speed);
+
+    // --- Chiamata al metodo sotto test ---
+    auto stats = f1.statistics();
+
+    CHECK(stats.mean_distance == doctest::Approx(mean_dist));
+    CHECK(stats.dev_distance == doctest::Approx(dev_dist));
+    CHECK(stats.mean_velocity == doctest::Approx(mean_speed));
+    CHECK(stats.dev_velocity == doctest::Approx(dev_speed));
+  }
 }
 
 /////////////// TESTING STATISTICS STRUCT /////////

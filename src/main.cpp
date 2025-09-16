@@ -39,8 +39,6 @@ int main() {
   statsText.setFillColor(sf::Color::White);
   statsText.setPosition(15.f, 15.f);  // leggero offset dal rettangolo
 
-  int time{};
-
   while (window->isOpen()) {
     sf::Event event{};
     while (window->pollEvent(event)) {
@@ -74,7 +72,6 @@ int main() {
     window->draw(statsText);
 
     window->display();
-    ++time;
   }
 
   return 0;
