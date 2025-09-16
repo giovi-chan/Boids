@@ -14,8 +14,6 @@ int main() {
   auto window = graphics::makeWindow(graphics::window_width,
                                      graphics::window_height, "Boids");
 
-  graphics::Style style;
-
   sf::Clock simClock;
 
   if (!graphics::loadBackground("assets/world_map31.png")) {
@@ -24,9 +22,9 @@ int main() {
   }
 
   sf::RectangleShape statsPanel;
-  statsPanel.setSize(sf::Vector2f(220.f, 85.f));     // larghezza x altezza
-  statsPanel.setFillColor(sf::Color(0, 0, 0, 130));  // nero trasparente
-  statsPanel.setPosition(10.f, 10.f);  // posizione in alto a sinistra
+  statsPanel.setSize(sf::Vector2f(220.f, 85.f));
+  statsPanel.setFillColor(sf::Color(0, 0, 0, 130));
+  statsPanel.setPosition(10.f, 10.f);
 
   sf::Font font;
   if (!font.loadFromFile("assets/font/Roboto_Condensed-Light.ttf")) {
@@ -37,9 +35,10 @@ int main() {
   statsText.setFont(font);
   statsText.setCharacterSize(16);
   statsText.setFillColor(sf::Color::White);
-  statsText.setPosition(15.f, 15.f);  // leggero offset dal rettangolo
+  statsText.setPosition(15.f, 15.f);
 
   while (window->isOpen()) {
+    graphics::Style style;
     sf::Event event{};
     while (window->pollEvent(event)) {
       if (event.type == sf::Event::Closed) window->close();

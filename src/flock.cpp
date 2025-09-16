@@ -160,7 +160,7 @@ std::vector<std::shared_ptr<boid::Boid>> Flock::nearPrey(
     const std::size_t i, const bool is_prey) const {
   std::vector<std::shared_ptr<boid::Boid>> near;
 
-  std::shared_ptr<boid::Boid> target =
+  const std::shared_ptr<boid::Boid> target =
       is_prey ? std::static_pointer_cast<boid::Boid>(prey_flock_[i])
               : std::static_pointer_cast<boid::Boid>(predator_flock_[i]);
 
@@ -327,11 +327,10 @@ statistics::Statistics Flock::statistics() const {
     mean_dist += sum[0];
     mean_dist2 += sum[1];
   }
-  const double denom = n * (n - 1) / 2.0;  // numero di coppie uniche i<j
+  const double denom = n * (n - 1) / 2.0;
   mean_dist /= denom;
   mean_dist2 /= denom;
 
-  // Calcolo media e deviazione standard della velocità
   const auto sum = std::accumulate(
       prey_flock_.begin(), prey_flock_.begin() + n,
       std::array<double, 2>{0.0, 0.0},

@@ -830,9 +830,7 @@ TEST_CASE("Graphics and Main functionality") {
     window->display();
   }
   SUBCASE("loadBackground") {
-    // Assuming "background.png" does not exist: should return false
     CHECK(graphics::loadBackground("non_existing_file.png") == false);
-    // You can test true if a valid image exists in project
   }
   SUBCASE("makeWindow returns valid unique_ptr") {
     auto window = graphics::makeWindow(300, 300, "Window Test");
@@ -842,7 +840,7 @@ TEST_CASE("Graphics and Main functionality") {
   SUBCASE("SFML Event polling") {
     auto window = graphics::makeWindow(200, 200, "Event Test");
     REQUIRE(window);
-    sf::Event event;
+    sf::Event event{};
     CHECK_NOTHROW(window->pollEvent(event));
   }
 }
