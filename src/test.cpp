@@ -4,6 +4,7 @@
 
 #include "../doctest.h"
 #include "../include/boid.hpp"
+#include "../include/flock.hpp"
 #include "../include/graphics.hpp"
 #include "../include/point.hpp"
 
@@ -576,6 +577,47 @@ TEST_CASE("Testing Flock class") {
     CHECK(pred2_near_predators[1]->getPosition().getX() == doctest::Approx(2.));
     CHECK(pred2_near_predators[1]->getPosition().getY() == doctest::Approx(0.));
   }
+
+  SUBCASE("Testing generateBoids method") {
+    flock::Flock f3(4, 2);
+    f3.generateBoids();
+
+    CHECK(f3.getPreyFlock().size() == 4);
+    CHECK(f3.getPredatorFlock().size() == 2);
+
+    for (const auto& p : f3.getPreyFlock()) {
+      CHECK(p != nullptr);
+    }
+    for (const auto& p : f3.getPredatorFlock()) {
+      CHECK(p != nullptr);
+    }
+
+    for (const auto& p : f3.getPreyFlock()) {
+      CHECK(p->getPosition().getX() >= 0.0);
+      CHECK(p->getPosition().getX() <= graphics::window_width);
+      CHECK(p->getPosition().getY() >= 0.0);
+      CHECK(p->getPosition().getY() <= graphics::window_height);
+    }
+
+    for (const auto& p : f3.getPreyFlock()) {
+      CHECK(p->getVelocity().distance() >= 2.0);
+      CHECK(p->getVelocity().distance() <= 5.0);
+    }
+
+    auto first_positions = f3.getPreyFlock();
+    f3.generateBoids();
+    auto second_positions = f3.getPreyFlock();
+
+    bool any_changed = false;
+    for (size_t i = 0; i < first_positions.size(); ++i) {
+      if (first_positions[i]->getPosition().getX() !=
+          second_positions[i]->getPosition().getX()) {
+        any_changed = true;
+        break;
+      }
+    }
+    CHECK(any_changed);
+  }
 }
 
 /////////////// TESTING STATISTICS STRUCT /////////
@@ -593,4 +635,64 @@ TEST_CASE("Testing Statistics struct") {
   CHECK(stats1.dev_distance == 11.);
   CHECK(stats1.mean_velocity == 12.);
   CHECK(stats1.dev_velocity == 5.);
+}
+
+///////////// TESTING GRAPHICS ///////////////////
+
+TEST_CASE("Graphics and Main functionality") {
+  SUBCASE("angleDegFromVelocity") {
+    CHECK(std::fabs(graphics::angleDegFromVelocity(1, 0) - 0.f) < 1e-5);
+    CHECK(std::fabs(graphics::angleDegFromVelocity(0, 1) - 90.f) < 1e-5);
+    CHECK(std::fabs(graphics::angleDegFromVelocity(-1, 0) - 180.f) < 1e-5);
+    CHECK(std::fabs(graphics::angleDegFromVelocity(0, -1) + 90.f) < 1e-5);
+  }
+  SUBCASE("makeBoidTriangle") {
+    auto triangle =
+        graphics::makeBoidTriangle(10.f, 1.f, sf::Color::Red, sf::Color::Blue);
+    CHECK(triangle.getPointCount() == 3);
+    CHECK(triangle.getFillColor() == sf::Color::Red);
+    CHECK(triangle.getOutlineColor() == sf::Color::Blue);
+    CHECK(triangle.getOutlineThickness() == 1.f);
+  }
+  SUBCASE("drawBoid on window") {
+    auto window = graphics::makeWindow(200, 200, "Test Window");
+    REQUIRE(window);
+    window->clear(sf::Color::Black);
+    CHECK_NOTHROW(
+        graphics::drawBoid(*window, 50, 50, 1, 0, graphics::Style(), true));
+    CHECK_NOTHROW(
+        graphics::drawBoid(*window, 100, 100, -1, 1, graphics::Style(), false));
+    window->display();
+  }
+  SUBCASE("drawFrame with empty flock") {
+    flock::Flock flock(0, 0);
+    auto window = graphics::makeWindow(200, 200, "Frame Test");
+    REQUIRE(window);
+    CHECK_NOTHROW(graphics::drawFrame(*window, flock, graphics::Style()));
+    window->display();
+  }
+  SUBCASE("drawFrame with some boids") {
+    flock::Flock flock(2, 1);
+    flock.generateBoids();
+    auto window = graphics::makeWindow(400, 400, "Frame Test 2");
+    REQUIRE(window);
+    CHECK_NOTHROW(graphics::drawFrame(*window, flock, graphics::Style()));
+    window->display();
+  }
+  SUBCASE("loadBackground") {
+    // Assuming "background.png" does not exist: should return false
+    CHECK(graphics::loadBackground("non_existing_file.png") == false);
+    // You can test true if a valid image exists in project
+  }
+  SUBCASE("makeWindow returns valid unique_ptr") {
+    auto window = graphics::makeWindow(300, 300, "Window Test");
+    REQUIRE(window);
+    CHECK(window->isOpen() == true);
+  }
+  SUBCASE("SFML Event polling") {
+    auto window = graphics::makeWindow(200, 200, "Event Test");
+    REQUIRE(window);
+    sf::Event event;
+    CHECK_NOTHROW(window->pollEvent(event));
+  }
 }

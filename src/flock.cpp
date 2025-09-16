@@ -125,26 +125,34 @@ void Flock::generateBoids() {
   std::uniform_real_distribution<> dist_pos_x(0., graphics::window_width);
   std::uniform_real_distribution<> dist_pos_y(0., graphics::window_height);
   std::uniform_real_distribution<> dist_angle(0., 2 * M_PI);
-  std::uniform_real_distribution<> dist_vel(0., 5.);
+  std::uniform_real_distribution<> dist_vel(2, 5);
 
   prey_flock_.clear();
   prey_flock_.reserve(n_prey_);
 
   for (std::size_t i = 0; i < n_prey_; ++i) {
-    prey_flock_.emplace_back(std::make_shared<boid::Prey>(
-        point::Point(dist_pos_x(mt_), dist_pos_y(mt_)),
-        point::Point(dist_vel(mt_) * std::cos(dist_angle(mt_)),
-                     dist_vel(mt_) * std::sin(dist_angle(mt_)))));
+    const double x = dist_pos_x(mt_);
+    const double y = dist_pos_y(mt_);
+    const double speed = dist_vel(mt_);
+    const double angle = dist_angle(mt_);
+
+    const point::Point pos(x, y);
+    const point::Point vel(speed * std::cos(angle), speed * std::sin(angle));
+    prey_flock_.emplace_back(std::make_shared<boid::Prey>(pos, vel));
   }
 
   predator_flock_.clear();
   predator_flock_.reserve(n_predators_);
 
   for (std::size_t i = 0; i < n_predators_; ++i) {
-    predator_flock_.emplace_back(std::make_shared<boid::Predator>(
-        point::Point(dist_pos_x(mt_), dist_pos_y(mt_)),
-        point::Point(dist_vel(mt_) * std::cos(dist_angle(mt_)),
-                     dist_vel(mt_) * std::sin(dist_angle(mt_)))));
+    const double x = dist_pos_x(mt_);
+    const double y = dist_pos_y(mt_);
+    const double speed = dist_vel(mt_);
+    const double angle = dist_angle(mt_);
+
+    const point::Point pos(x, y);
+    const point::Point vel(speed * std::cos(angle), speed * std::sin(angle));
+    predator_flock_.emplace_back(std::make_shared<boid::Predator>(pos, vel));
   }
 }
 
